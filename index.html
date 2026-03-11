@@ -2,1097 +2,2110 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MobilityFlow</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:          #051F20;
-      --surface:     #0B2B26;
-      --surface2:    #163832;
-      --surface3:    #235347;
-      --accent:      #8EB69B;
-      --accent-light:#DAF1DE;
-      --text:        #DAF1DE;
-      --text-muted:  #8EB69B;
-      --border:      #235347;
-      --radius:      16px;
-      --radius-sm:   8px;
-      --transition:  0.25s ease;
-      --danger:      #e06c6c;
+      --bg: #051F20;
+      --surface: #0B2B26;
+      --surface2: #163832;
+      --surface3: #235347;
+      --accent: #8EB69B;
+      --accent-light: #DAF1DE;
+      --text: #DAF1DE;
+      --text-muted: #8EB69B;
+      --border: #235347;
+      --danger: #e57373;
+      --radius: 18px;
+      --radius-sm: 10px;
+      --transition: 0.25s ease;
     }
 
-    html { scroll-behavior: smooth; }
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg); color: var(--text);
-      min-height: 100vh; line-height: 1.6;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #163832 0, #051F20 55%);
+      color: var(--text);
+      min-height: 100vh;
     }
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
 
-    /* ── Nav ── */
+    a { color: inherit; text-decoration: none; }
+
+    /* NAV */
     nav {
-      position: sticky; top: 0; z-index: 200;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 1rem 2.5rem;
-      background: rgba(5,31,32,0.92);
-      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
       border-bottom: 1px solid var(--border);
-    }
-    .nav-logo { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text); }
-    .nav-logo span { color: var(--accent-light); }
-    .nav-right { display: flex; align-items: center; gap: 1rem; }
-    .nav-links { display: flex; gap: 1.5rem; }
-    .nav-links a {
-      color: var(--text-muted); font-size: 0.88rem; font-weight: 500;
-      text-decoration: none; transition: var(--transition);
-    }
-    .nav-links a:hover { color: var(--text); }
-
-    .nav-auth-btn {
-      padding: 0.5rem 1.2rem; border-radius: 99px; font-size: 0.85rem;
-      font-weight: 600; cursor: pointer; transition: var(--transition); border: none;
-    }
-    .btn-signin {
-      background: transparent; color: var(--text-muted);
-      border: 1.5px solid var(--border) !important;
-    }
-    .btn-signin:hover { border-color: var(--accent) !important; color: var(--accent); }
-    .btn-getstarted { background: var(--accent-light); color: var(--bg); }
-    .btn-getstarted:hover { background: var(--accent); }
-
-    .user-avatar-btn {
-      display: flex; align-items: center; gap: 0.6rem;
-      background: var(--surface2); border: 1.5px solid var(--border);
-      border-radius: 99px; padding: 0.4rem 1rem 0.4rem 0.5rem;
-      cursor: pointer; transition: var(--transition); font-size: 0.85rem;
-      color: var(--text); font-weight: 600;
-    }
-    .user-avatar-btn:hover { border-color: var(--accent); }
-    .avatar-circle {
-      width: 28px; height: 28px; border-radius: 50%;
-      background: var(--accent); color: var(--bg);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.75rem; font-weight: 700;
+      background: rgba(5,31,32,0.9);
+      backdrop-filter: blur(12px);
     }
 
-    /* ── Modal Overlay ── */
-    .modal-overlay {
-      display: none; position: fixed; inset: 0; z-index: 500;
-      background: rgba(5,31,32,0.85); backdrop-filter: blur(8px);
-      align-items: center; justify-content: center; padding: 1rem;
+    .logo {
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
     }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 2.5rem;
-      width: 100%; max-width: 440px;
-      position: relative; animation: slideUp 0.3s ease;
-    }
-    @keyframes slideUp {
-      from { opacity:0; transform: translateY(20px); }
-      to   { opacity:1; transform: translateY(0); }
-    }
-    .modal-close {
-      position: absolute; top: 1rem; right: 1.2rem;
-      background: none; border: none; color: var(--text-muted);
-      font-size: 1.3rem; cursor: pointer; line-height: 1;
-    }
-    .modal-close:hover { color: var(--text); }
-    .modal-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.3rem; }
-    .modal-sub { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.8rem; }
-    .modal-tab-row {
-      display: flex; background: var(--surface2); border-radius: 99px;
-      padding: 4px; gap: 4px; margin-bottom: 1.8rem;
-    }
-    .modal-tab {
-      flex: 1; text-align: center; padding: 0.5rem;
-      border-radius: 99px; font-size: 0.85rem; font-weight: 600;
-      cursor: pointer; transition: var(--transition); color: var(--text-muted);
-      border: none; background: transparent;
-    }
-    .modal-tab.active { background: var(--accent-light); color: var(--bg); }
+    .logo span { color: var(--accent-light); }
 
-    .form-group { margin-bottom: 1.1rem; }
-    .form-label {
-      display: block; font-size: 0.78rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.06em;
-      color: var(--text-muted); margin-bottom: 0.45rem;
+    #nav-auth-area {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
     }
-    .form-input {
-      width: 100%; padding: 0.75rem 1rem;
-      background: var(--surface2); border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm); color: var(--text);
-      font-size: 0.9rem; transition: var(--transition); outline: none;
+
+    button {
       font-family: inherit;
-    }
-    .form-input:focus { border-color: var(--accent-light); }
-    .form-input::placeholder { color: var(--text-muted); opacity: 0.6; }
-
-    .btn-form {
-      width: 100%; padding: 0.85rem; border-radius: 99px;
-      background: var(--accent-light); color: var(--bg);
-      font-weight: 700; font-size: 0.95rem; border: none;
-      cursor: pointer; transition: var(--transition); margin-top: 0.5rem;
-      font-family: inherit;
-    }
-    .btn-form:hover:not(:disabled) { background: var(--accent); }
-    .btn-form:disabled { background: var(--surface3); color: var(--text-muted); cursor: not-allowed; }
-
-    .divider-row {
-      display: flex; align-items: center; gap: 0.75rem;
-      margin: 1.2rem 0; color: var(--text-muted); font-size: 0.8rem;
-    }
-    .divider-row::before, .divider-row::after { content:''; flex:1; height:1px; background: var(--border); }
-
-    .btn-google {
-      width: 100%; padding: 0.8rem; border-radius: 99px;
-      background: var(--surface2); border: 1.5px solid var(--border);
-      color: var(--text); font-weight: 600; font-size: 0.9rem;
-      cursor: pointer; transition: var(--transition);
-      display: flex; align-items: center; justify-content: center; gap: 0.6rem;
-      font-family: inherit;
-    }
-    .btn-google:hover { border-color: var(--accent); }
-
-    .modal-error {
-      background: rgba(224,108,108,0.12); border: 1px solid rgba(224,108,108,0.3);
-      border-radius: var(--radius-sm); padding: 0.7rem 1rem;
-      color: var(--danger); font-size: 0.82rem; margin-bottom: 1rem; display: none;
-    }
-
-    /* ── Account Panel ── */
-    .panel-modal {
-      display: none; position: fixed; inset: 0; z-index: 500;
-      background: rgba(5,31,32,0.85); backdrop-filter: blur(8px);
-      align-items: flex-start; justify-content: flex-end; padding: 1rem;
-    }
-    .panel-modal.open { display: flex; }
-    .panel {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); width: 100%; max-width: 480px;
-      max-height: 90vh; overflow-y: auto;
-      margin-top: 4.5rem; animation: slideIn 0.3s ease;
-    }
-    @keyframes slideIn {
-      from { opacity:0; transform: translateX(20px); }
-      to   { opacity:1; transform: translateX(0); }
-    }
-    .panel-header {
-      padding: 1.5rem; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; background: var(--surface); z-index: 1;
-    }
-    .panel-header-title { font-weight: 800; font-size: 1.1rem; }
-    .panel-close { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
-    .panel-close:hover { color: var(--text); }
-    .panel-user-info {
-      padding: 1.5rem; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; gap: 1rem;
-    }
-    .panel-avatar {
-      width: 48px; height: 48px; border-radius: 50%;
-      background: var(--accent); color: var(--bg);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; font-weight: 700; flex-shrink: 0;
-    }
-    .panel-user-name { font-weight: 700; font-size: 1rem; }
-    .panel-user-email { font-size: 0.8rem; color: var(--text-muted); }
-    .panel-section { padding: 1.5rem; }
-    .panel-section-title {
-      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.09em; color: var(--accent); margin-bottom: 1rem;
-    }
-    .saved-circuit-card {
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 0.75rem;
+      cursor: pointer;
+      border: none;
       transition: var(--transition);
     }
-    .saved-circuit-card:hover { border-color: var(--accent); }
-    .saved-circuit-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.5rem; }
-    .saved-circuit-name { font-weight: 700; font-size: 0.92rem; }
-    .saved-circuit-meta { font-size: 0.75rem; color: var(--text-muted); }
-    .saved-circuit-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.5rem; }
-    .s-tag { font-size: 0.68rem; background: var(--surface3); border-radius: 99px; padding: 0.15rem 0.55rem; color: var(--text-muted); }
-    .saved-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
-    .btn-load-circuit {
-      background: rgba(218,241,222,0.1); border: 1px solid rgba(218,241,222,0.25);
-      color: var(--accent-light); border-radius: 99px; padding: 0.3rem 0.8rem;
-      font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: var(--transition);
-      font-family: inherit;
-    }
-    .btn-load-circuit:hover { background: rgba(218,241,222,0.2); }
-    .btn-delete-circuit {
-      background: rgba(224,108,108,0.1); border: 1px solid rgba(224,108,108,0.25);
-      color: var(--danger); border-radius: 99px; padding: 0.3rem 0.7rem;
-      font-size: 0.75rem; cursor: pointer; transition: var(--transition); font-family: inherit;
-    }
-    .btn-delete-circuit:hover { background: rgba(224,108,108,0.2); }
-    .empty-saves { text-align: center; padding: 2rem 1rem; color: var(--text-muted); font-size: 0.88rem; }
-    .empty-saves div { font-size: 2rem; margin-bottom: 0.5rem; }
-    .panel-signout {
-      margin: 0 1.5rem 1.5rem; width: calc(100% - 3rem); padding: 0.75rem;
-      border-radius: 99px; background: transparent; border: 1.5px solid var(--border);
-      color: var(--text-muted); font-weight: 600; font-size: 0.88rem;
-      cursor: pointer; transition: var(--transition); font-family: inherit;
-    }
-    .panel-signout:hover { border-color: var(--danger); color: var(--danger); }
 
-    /* ── Toast ── */
-    .toast {
-      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(80px);
-      background: var(--surface2); border: 1px solid var(--border);
-      color: var(--text); border-radius: 99px;
-      padding: 0.75rem 1.5rem; font-size: 0.85rem; font-weight: 600;
-      z-index: 1000; transition: transform 0.35s ease, opacity 0.35s ease;
-      opacity: 0; white-space: nowrap; pointer-events: none;
+    .btn-outline {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 0.6rem 1rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
     }
-    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-    .toast.success { border-color: var(--accent); color: var(--accent-light); }
-    .toast.error   { border-color: var(--danger);  color: var(--danger); }
 
-    /* ── Hero ── */
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent-light); }
+
+    .btn-solid {
+      background: var(--accent-light);
+      color: var(--bg);
+      padding: 0.7rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .btn-solid:hover { background: var(--accent); }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--surface2);
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.9rem 0.4rem 0.4rem;
+      font-size: 0.85rem;
+    }
+
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.8rem;
+    }
+
+    /* HERO */
     .hero {
-      text-align: center; padding: 6rem 1.5rem 5rem;
-      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(142,182,155,0.12) 0%, transparent 70%);
-      position: relative; overflow: hidden;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 4.5rem 1.5rem 3rem;
+      text-align: center;
     }
-    .hero-badge {
-      display: inline-block; background: rgba(142,182,155,0.15);
-      color: var(--accent-light); border: 1px solid rgba(142,182,155,0.35);
-      border-radius: 99px; padding: 0.35rem 1.1rem;
-      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
-      text-transform: uppercase; margin-bottom: 1.8rem;
-    }
-    .hero h1 {
-      font-size: clamp(2.6rem, 6vw, 4.2rem); font-weight: 800;
-      line-height: 1.1; letter-spacing: -2px; margin-bottom: 1.2rem;
-    }
-    .hero h1 span { color: var(--accent-light); }
-    .hero p { color: var(--text-muted); font-size: 1.1rem; max-width: 520px; margin: 0 auto 2.5rem; }
-    .hero-cta {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: var(--accent-light); color: var(--bg);
-      font-weight: 700; font-size: 0.95rem; padding: 0.9rem 2.2rem;
-      border-radius: 99px; border: none; cursor: pointer;
-      transition: var(--transition); text-decoration: none;
-    }
-    .hero-cta:hover { background: var(--accent); transform: translateY(-3px); }
 
-    /* ── Stats ── */
-    .stats-row {
-      display: flex; justify-content: center; gap: 3rem;
-      flex-wrap: wrap; padding: 2rem 1.5rem 3rem;
+    .badge {
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      padding: 0.35rem 1.1rem;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      border-radius: 999px;
+      border: 1px solid rgba(142,182,155,0.45);
+      background: rgba(142,182,155,0.14);
+      color: var(--accent-light);
+      font-weight: 700;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      line-height: 1.05;
+      margin-bottom: 1rem;
+      letter-spacing: -0.06em;
+    }
+
+    .hero h1 span { color: var(--accent-light); }
+
+    .hero p {
+      color: var(--text-muted);
+      max-width: 560px;
+      margin: 0 auto 2rem;
+      line-height: 1.7;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--accent-light);
+      color: var(--bg);
+      padding: 0.85rem 1.9rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .hero-cta:hover { background: var(--accent); transform: translateY(-2px); }
+
+    /* STATS */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+      padding: 1.5rem 1.5rem 3rem;
       border-bottom: 1px solid var(--border);
     }
-    .stat { text-align: center; }
-    .stat-num { font-size: 2rem; font-weight: 800; color: var(--accent-light); letter-spacing: -1px; }
-    .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; }
 
-    /* ── Section ── */
-    .section { padding: 4rem 1.5rem; max-width: 1100px; margin: 0 auto; }
-    .section-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 0.5rem; }
-    .section-title { font-size: clamp(1.5rem,3vw,2rem); font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.5rem; }
-    .section-sub { color: var(--text-muted); margin-bottom: 2.5rem; font-size: 0.95rem; }
+    .stat {
+      text-align: center;
+    }
+    .stat .num {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--accent-light);
+    }
+    .stat .label {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 0.2rem;
+    }
 
-    /* ── Step Indicator ── */
-    .steps-indicator { display: flex; align-items: center; margin-bottom: 3rem; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.5rem; }
-    .step-item { display: flex; align-items: center; gap: 0.6rem; font-size: 0.8rem; white-space: nowrap; flex-shrink: 0; }
-    .step-num { width: 26px; height: 26px; border-radius: 50%; background: var(--surface2); border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); transition: var(--transition); }
-    .step-item.active .step-num { background: var(--accent-light); border-color: var(--accent-light); color: var(--bg); }
-    .step-item.done   .step-num { background: var(--accent);       border-color: var(--accent);       color: var(--bg); }
-    .step-text { color: var(--text-muted); font-weight: 500; }
+    /* SECTIONS */
+    .section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin-bottom: 0.4rem;
+    }
+
+    .section-sub {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+
+    /* STEP INDICATOR */
+    .steps {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .step-item.active .step-num {
+      background: var(--accent-light);
+      color: var(--bg);
+      border-color: var(--accent-light);
+    }
+
+    .step-item.done .step-num {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
+    }
+
+    .step-text {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
     .step-item.active .step-text { color: var(--text); }
-    .step-item.done   .step-text { color: var(--accent); }
-    .step-line { width: 40px; height: 1px; background: var(--border); margin: 0 0.5rem; flex-shrink: 0; }
+    .step-item.done .step-text { color: var(--accent); }
 
-    /* ── Selectable Cards ── */
-    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 1rem; }
-    .sel-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 1.6rem; cursor: pointer; transition: var(--transition); position: relative; overflow: hidden; user-select: none; }
-    .sel-card:hover { border-color: var(--accent); transform: translateY(-3px); }
-    .sel-card.selected { border-color: var(--accent-light); background: rgba(218,241,222,0.06); }
-    .check-mark { position: absolute; top: 1rem; right: 1rem; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-light); color: var(--bg); display: none; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; }
-    .sel-card.selected .check-mark { display: flex; }
-    .card-icon { font-size: 2.2rem; margin-bottom: 1rem; display: block; }
-    .card-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.4rem; }
-    .card-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.55; }
+    .step-line {
+      width: 40px;
+      height: 1px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
 
-    /* ── Time Pills ── */
-    .time-options { display: flex; gap: 0.6rem; flex-wrap: wrap; }
-    .time-pill { padding: 0.55rem 1.3rem; border-radius: 99px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-muted); font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: var(--transition); }
-    .time-pill:hover { border-color: var(--accent); color: var(--text); }
-    .time-pill.selected { background: var(--accent-light); border-color: var(--accent-light); color: var(--bg); }
+    /* CARDS / OPTIONS */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+      gap: 1rem;
+    }
 
-    /* ── Goal Tags ── */
-    .goal-tags { display: flex; gap: 0.6rem; flex-wrap: wrap; }
-    .goal-tag { padding: 0.5rem 1.1rem; border-radius: 99px; border: 1.5px solid var(--border); background: var(--surface); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: var(--transition); color: var(--text-muted); }
-    .goal-tag:hover { border-color: var(--accent); color: var(--text); }
-    .goal-tag.selected { border-color: var(--accent-light); color: var(--accent-light); background: rgba(218,241,222,0.08); }
+    .card-select {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 1.4rem 1.5rem;
+      cursor: pointer;
+      position: relative;
+      transition: var(--transition);
+    }
 
-    /* ── Buttons ── */
-    .section-divider { border: none; border-top: 1px solid var(--border); margin: 0; }
-    .btn-primary { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--accent-light); color: var(--bg); font-weight: 700; font-size: 0.95rem; padding: 0.9rem 2.2rem; border-radius: 99px; border: none; cursor: pointer; transition: var(--transition); margin-top: 2.5rem; font-family: inherit; }
-    .btn-primary:hover:not(:disabled) { background: var(--accent); transform: translateY(-2px); }
-    .btn-primary:disabled { background: var(--surface2); color: var(--text-muted); cursor: not-allowed; }
-    .btn-ghost { display: inline-flex; align-items: center; gap: 0.5rem; background: transparent; color: var(--text-muted); font-weight: 600; font-size: 0.88rem; padding: 0.75rem 1.5rem; border-radius: 99px; border: 1.5px solid var(--border); cursor: pointer; transition: var(--transition); margin-top: 1rem; margin-left: 0.75rem; font-family: inherit; }
-    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
-    .btn-save { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--surface2); color: var(--accent-light); border: 1.5px solid rgba(218,241,222,0.25); font-weight: 600; font-size: 0.88rem; padding: 0.75rem 1.5rem; border-radius: 99px; cursor: pointer; transition: var(--transition); margin-top: 1rem; margin-left: 0.75rem; font-family: inherit; }
-    .btn-save:hover:not(:disabled) { border-color: var(--accent-light); background: rgba(218,241,222,0.08); }
-    .btn-save:disabled { opacity: 0.4; cursor: not-allowed; }
+    .card-select:hover { border-color: var(--accent); transform: translateY(-2px); }
 
-    /* ── Results ── */
+    .card-select.selected {
+      border-color: var(--accent-light);
+      background: rgba(218,241,222,0.05);
+    }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .card-title {
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      font-size: 0.98rem;
+    }
+
+    .card-text {
+      color: var(--text-muted);
+      font-size: 0.84rem;
+      line-height: 1.6;
+    }
+
+    .check {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.8rem;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      color: var(--bg);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 800;
+    }
+    .card-select.selected .check { display: flex; }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .pill {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      padding: 0.5rem 1.15rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .pill:hover { border-color: var(--accent); color: var(--text); }
+
+    .pill.selected {
+      background: var(--accent-light);
+      color: var(--bg);
+      border-color: var(--accent-light);
+    }
+
+    .goal {
+      font-size: 0.82rem;
+      padding: 0.5rem 1.1rem;
+      background: var(--surface);
+    }
+
+    .goal.selected {
+      background: rgba(218,241,222,0.07);
+      border-color: var(--accent-light);
+      color: var(--accent-light);
+    }
+
+    .divider {
+      margin: 2.5rem 0;
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border-radius: 999px;
+      padding: 0.75rem 1.7rem;
+      background: var(--accent-light);
+      color: var(--bg);
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover:not(:disabled) { background: var(--accent); transform: translateY(-1px); }
+
+    .btn-primary:disabled {
+      background: var(--surface2);
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border-radius: 999px;
+      padding: 0.7rem 1.4rem;
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    .btn-save {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border-radius: 999px;
+      padding: 0.7rem 1.4rem;
+      background: var(--surface2);
+      border: 1px solid rgba(218,241,222,0.18);
+      color: var(--accent-light);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .btn-save:hover:not(:disabled) {
+      border-color: var(--accent-light);
+      background: rgba(218,241,222,0.07);
+    }
+
+    .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* RESULTS / CIRCUIT */
     #results { display: none; }
-    .results-summary { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem 2rem; margin-bottom: 2rem; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; }
-    .summary-item { display: flex; flex-direction: column; gap: 0.2rem; }
-    .summary-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
-    .summary-value { font-size: 1rem; font-weight: 700; color: var(--accent-light); }
-    .summary-divider { width: 1px; height: 40px; background: var(--border); }
-    .results-tag { display: inline-block; background: rgba(142,182,155,0.15); color: var(--accent-light); border: 1px solid rgba(142,182,155,0.3); border-radius: 99px; padding: 0.3rem 0.9rem; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.8rem; }
-    .results-title { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.4rem; }
-    .results-sub { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem; }
 
-    /* ── Exercise Cards ── */
-    .exercise-list { display: flex; flex-direction: column; gap: 0.85rem; }
-    .exercise-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: var(--transition); }
+    .tag {
+      display: inline-block;
+      padding: 0.25rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(142,182,155,0.35);
+      background: rgba(142,182,155,0.16);
+      color: var(--accent-light);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 0.7rem;
+    }
+
+    .summary {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 1.4rem 1.6rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      margin-bottom: 1.6rem;
+    }
+
+    .summary-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .summary-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+    .summary-value {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--accent-light);
+    }
+
+    .summary-divider {
+      width: 1px;
+      height: 40px;
+      background: var(--border);
+    }
+
+    .exercise-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .exercise-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
     .exercise-card:hover { border-color: var(--accent); }
-    .exercise-header { display: flex; align-items: center; gap: 1rem; padding: 1.2rem 1.5rem; cursor: pointer; }
-    .exercise-num { min-width: 34px; height: 34px; border-radius: 50%; background: rgba(142,182,155,0.12); border: 1.5px solid rgba(142,182,155,0.3); color: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; }
-    .exercise-meta { flex: 1; }
-    .exercise-name { font-weight: 700; font-size: 0.97rem; }
-    .exercise-tags { display: flex; gap: 0.6rem; margin-top: 0.3rem; flex-wrap: wrap; }
-    .exercise-tag { font-size: 0.7rem; color: var(--text-muted); background: var(--surface2); border-radius: 99px; padding: 0.15rem 0.6rem; }
-    .exercise-arrow { color: var(--text-muted); font-size: 0.9rem; transition: transform var(--transition); }
-    .exercise-card.open .exercise-arrow { transform: rotate(180deg); }
-    .exercise-body { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
-    .exercise-card.open .exercise-body { max-height: 700px; }
-    .exercise-body-inner { border-top: 1px solid var(--border); padding: 1.4rem 1.5rem 1.6rem; }
-    .body-section-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--accent); margin-bottom: 0.75rem; }
-    .instructions { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.2rem; }
-    .instruction-step { display: flex; gap: 0.85rem; align-items: flex-start; font-size: 0.84rem; color: var(--text-muted); line-height: 1.55; }
-    .instruction-step .i-num { min-width: 20px; height: 20px; border-radius: 50%; background: var(--surface3); color: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; margin-top: 0.1rem; }
-    .tips-box { background: rgba(142,182,155,0.07); border: 1px solid rgba(142,182,155,0.2); border-radius: var(--radius-sm); padding: 0.85rem 1rem; }
-    .tips-box p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.55; }
-    .tips-box p strong { color: var(--accent-light); }
 
-    footer { text-align: center; padding: 3rem 1.5rem; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.82rem; margin-top: 4rem; }
+    .exercise-header {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      padding: 1rem 1.3rem;
+      cursor: pointer;
+    }
+
+    .exercise-num {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(142,182,155,0.18);
+      border: 1px solid rgba(142,182,155,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent-light);
+    }
+
+    .exercise-meta { flex: 1; }
+    .exercise-name { font-size: 0.95rem; font-weight: 700; }
+    .exercise-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.3rem;
+    }
+
+    .exercise-tag {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: var(--surface2);
+      border-radius: 999px;
+      padding: 0.15rem 0.6rem;
+    }
+
+    .exercise-arrow {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+
+    .exercise-card.open .exercise-arrow {
+      transform: rotate(180deg);
+    }
+
+    .exercise-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+    }
+
+    .exercise-card.open .exercise-body { max-height: 600px; }
+
+    .exercise-body-inner {
+      border-top: 1px solid var(--border);
+      padding: 1.1rem 1.3rem 1.2rem;
+    }
+
+    .body-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .step-line-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.7rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .step-line-item span.num {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--surface3);
+      color: var(--accent-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      flex-shrink: 0;
+    }
+
+    .tip-box {
+      border-radius: var(--radius-sm);
+      background: rgba(142,182,155,0.08);
+      border: 1px solid rgba(142,182,155,0.3);
+      padding: 0.7rem 0.9rem;
+      font-size: 0.81rem;
+      color: var(--text-muted);
+    }
+
+    .tip-box strong { color: var(--accent-light); }
+
+    /* AUTH MODAL + ACCOUNT PANEL */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5,31,32,0.78);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 200;
+    }
+
+    .overlay.open { display: flex; }
+
+    .modal,
+    .panel {
+      width: 100%;
+      max-width: 430px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    .close {
+      position: absolute;
+      top: 0.8rem;
+      right: 1rem;
+      font-size: 1.1rem;
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .close:hover { color: var(--text); }
+
+    .modal h2,
+    .panel h2 {
+      font-size: 1.3rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .modal-sub {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .tabs {
+      display: flex;
+      background: var(--surface2);
+      border-radius: 999px;
+      padding: 4px;
+      margin-bottom: 1rem;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 0.5rem;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .tab.active {
+      background: var(--accent-light);
+      color: var(--bg);
+    }
+
+    .field {
+      margin-bottom: 0.9rem;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .field input {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      padding: 0.8rem 1rem;
+      outline: none;
+    }
+
+    .field input:focus { border-color: var(--accent-light); }
+
+    .auth-btn {
+      width: 100%;
+      border-radius: 999px;
+      padding: 0.8rem 1rem;
+      background: var(--accent-light);
+      color: var(--bg);
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .auth-btn:hover { background: var(--accent); }
+
+    .google-btn {
+      width: 100%;
+      border-radius: 999px;
+      padding: 0.8rem 1rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .google-btn:hover { border-color: var(--accent); color: var(--accent-light); }
+
+    .auth-error {
+      display: none;
+      margin-bottom: 0.9rem;
+      border-radius: 12px;
+      padding: 0.7rem 0.9rem;
+      background: rgba(229,115,115,0.14);
+      border: 1px solid rgba(229,115,115,0.35);
+      color: var(--danger);
+      font-size: 0.84rem;
+    }
+
+    .divider-text {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 0.9rem 0;
+    }
+
+    .divider-text::before,
+    .divider-text::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .panel p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin: 0.4rem 0 1rem;
+    }
+
+    .panel .signout-btn {
+      width: 100%;
+      border-radius: 999px;
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .panel .signout-btn:hover {
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .saved-list {
+      margin-top: 1rem;
+    }
+
+    .saved-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.8rem 0.9rem;
+      margin-bottom: 0.6rem;
+      font-size: 0.82rem;
+    }
+
+    .saved-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.4rem;
+      align-items: flex-start;
+      margin-bottom: 0.3rem;
+    }
+
+    .saved-name { font-weight: 700; }
+    .saved-meta { color: var(--text-muted); font-size: 0.76rem; }
+
+    .saved-actions {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .saved-btn {
+      font-size: 0.75rem;
+      border-radius: 999px;
+      padding: 0.25rem 0.6rem;
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .saved-btn.load { border-color: var(--accent); color: var(--accent-light); }
+    .saved-btn.delete { border-color: rgba(229,115,115,0.6); color: var(--danger); }
+
+    .empty-saves {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      padding: 0.7rem 0;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 1.5rem;
+      transform: translateX(-50%) translateY(80px);
+      padding: 0.75rem 1.3rem;
+      border-radius: 999px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.87rem;
+      z-index: 300;
+      opacity: 0;
+      transition: 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success { border-color: var(--accent); color: var(--accent-light); }
+    .toast.error { border-color: var(--danger); color: var(--danger); }
+
+    footer {
+      padding: 2.5rem 1.5rem 3rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 3rem;
+    }
     footer strong { color: var(--accent-light); }
 
     @media (max-width: 600px) {
-      nav { padding: 1rem 1.2rem; }
-      .nav-links { display: none; }
-      .hero { padding: 4rem 1rem 3rem; }
-      .section { padding: 3rem 1rem; }
-      .stats-row { gap: 1.5rem; }
-      .results-summary { flex-direction: column; gap: 1rem; }
+      .summary { flex-direction: column; }
       .summary-divider { width: 100%; height: 1px; }
-      .modal { padding: 2rem 1.5rem; }
     }
   </style>
 </head>
 <body>
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
 
-<!-- ══ TOAST ════════════════════════════════════════════════ -->
-<div class="toast" id="toast"></div>
+  <!-- Auth Modal -->
+  <div class="overlay" id="auth-overlay">
+    <div class="modal">
+      <button class="close" id="auth-close">✕</button>
+      <h2>Welcome to MobilityFlow</h2>
+      <div class="modal-sub">Sign in to save your favourite mobility circuits.</div>
 
-<!-- ══ AUTH MODAL ═══════════════════════════════════════════ -->
-<div class="modal-overlay" id="auth-overlay">
-  <div class="modal">
-    <button class="modal-close" id="btn-close-auth">✕</button>
-    <div class="modal-title">Welcome to MobilityFlow</div>
-    <div class="modal-sub">Sign in to save your circuits and track your progress.</div>
-    <div class="modal-tab-row">
-      <button class="modal-tab active" id="tab-signin">Sign In</button>
-      <button class="modal-tab"        id="tab-register">Create Account</button>
-    </div>
-    <div id="modal-error" class="modal-error"></div>
+      <div class="tabs">
+        <button class="tab active" id="tab-signin">Sign In</button>
+        <button class="tab" id="tab-register">Create Account</button>
+      </div>
 
-    <!-- Sign In -->
-    <div id="form-signin">
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input class="form-input" type="email" id="si-email" placeholder="you@example.com" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <input class="form-input" type="password" id="si-password" placeholder="Your password" />
-      </div>
-      <button class="btn-form" id="btn-do-signin">Sign In</button>
-      <div class="divider-row">or</div>
-      <button class="btn-google" id="btn-do-google-signin">
-        <span>🔵</span> Continue with Google
-      </button>
-    </div>
+      <div class="auth-error" id="auth-error"></div>
 
-    <!-- Register -->
-    <div id="form-register" style="display:none;">
-      <div class="form-group">
-        <label class="form-label">Full Name</label>
-        <input class="form-input" type="text" id="reg-name" placeholder="Your name" />
+      <div id="signin-form">
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="si-email" placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="si-password" placeholder="Your password" />
+        </div>
+        <button class="auth-btn" id="btn-signin">Sign In</button>
+        <div class="divider-text">or</div>
+        <button class="google-btn" id="btn-google-si">Continue with Google</button>
       </div>
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input class="form-input" type="email" id="reg-email" placeholder="you@example.com" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <input class="form-input" type="password" id="reg-password" placeholder="Min. 6 characters" />
-      </div>
-      <button class="btn-form" id="btn-do-register">Create Account</button>
-      <div class="divider-row">or</div>
-      <button class="btn-google" id="btn-do-google-register">
-        <span>🔵</span> Continue with Google
-      </button>
-    </div>
-  </div>
-</div>
 
-<!-- ══ ACCOUNT PANEL ════════════════════════════════════════ -->
-<div class="panel-modal" id="panel-modal">
-  <div class="panel">
-    <div class="panel-header">
-      <div class="panel-header-title">My Account</div>
-      <button class="panel-close" id="btn-close-panel">✕</button>
-    </div>
-    <div class="panel-user-info" id="panel-user-info"></div>
-    <div class="panel-section">
-      <div class="panel-section-title">💾 Saved Circuits</div>
-      <div id="saved-circuits-list">
-        <div class="empty-saves"><div>🌿</div>No saved circuits yet.</div>
+      <div id="register-form" style="display:none;">
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" id="reg-name" placeholder="Your name" />
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="reg-email" placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="reg-password" placeholder="Minimum 6 characters" />
+        </div>
+        <button class="auth-btn" id="btn-register">Create Account</button>
+        <div class="divider-text">or</div>
+        <button class="google-btn" id="btn-google-reg">Continue with Google</button>
       </div>
     </div>
-    <button class="panel-signout" id="btn-signout">↩ Sign Out</button>
-  </div>
-</div>
-
-<!-- ══ NAV ══════════════════════════════════════════════════ -->
-<nav>
-  <div class="nav-logo">Mobility<span>Flow</span></div>
-  <div class="nav-right">
-    <div class="nav-links">
-      <a href="#builder">Build Circuit</a>
-      <a href="#results">My Routine</a>
-    </div>
-    <div id="nav-auth-area">
-      <!-- Populated by JS -->
-    </div>
-  </div>
-</nav>
-
-<!-- ══ HERO ═════════════════════════════════════════════════ -->
-<section class="hero">
-  <div class="hero-badge">🌿 Your Daily Movement Companion</div>
-  <h1>Move Better,<br/><span>Feel Better</span></h1>
-  <p>Personalised stretching and mobility circuits tailored to your schedule, goals, and the time of day — morning or night.</p>
-  <a href="#builder" class="hero-cta">Build My Circuit →</a>
-</section>
-
-<!-- ══ STATS ════════════════════════════════════════════════ -->
-<div class="stats-row">
-  <div class="stat"><div class="stat-num">20+</div><div class="stat-label">Mobility Exercises</div></div>
-  <div class="stat"><div class="stat-num">2</div><div class="stat-label">Daily Sessions</div></div>
-  <div class="stat"><div class="stat-num">5–20</div><div class="stat-label">Minutes Per Circuit</div></div>
-  <div class="stat"><div class="stat-num">6</div><div class="stat-label">Mobility Goals</div></div>
-</div>
-
-<!-- ══ BUILDER ══════════════════════════════════════════════ -->
-<div class="section" id="builder">
-  <div class="steps-indicator">
-    <div class="step-item active" id="si-1"><div class="step-num">1</div><div class="step-text">Session Time</div></div>
-    <div class="step-line"></div>
-    <div class="step-item" id="si-2"><div class="step-num">2</div><div class="step-text">Duration</div></div>
-    <div class="step-line"></div>
-    <div class="step-item" id="si-3"><div class="step-num">3</div><div class="step-text">Your Goals</div></div>
-    <div class="step-line"></div>
-    <div class="step-item" id="si-4"><div class="step-num">4</div><div class="step-text">Your Circuit</div></div>
   </div>
 
-  <div class="section-label">Step 1</div>
-  <div class="section-title">When are you stretching?</div>
-  <div class="section-sub">Choose the session that matches your time of day.</div>
-  <div class="cards-grid">
-    <div class="sel-card" data-session="morning">
-      <div class="check-mark">✓</div>
-      <span class="card-icon">🌅</span>
-      <div class="card-title">Morning Wake-Up</div>
-      <div class="card-desc">Gently activate your body after sleep. Reduce stiffness, boost circulation, and prime your mind for the day.</div>
-    </div>
-    <div class="sel-card" data-session="night">
-      <div class="check-mark">✓</div>
-      <span class="card-icon">🌙</span>
-      <div class="card-title">Night Wind-Down</div>
-      <div class="card-desc">Release tension from the day, calm your nervous system, and prepare your body for deep, restful sleep.</div>
+  <!-- Account Panel -->
+  <div class="overlay" id="account-overlay">
+    <div class="panel">
+      <button class="close" id="account-close">✕</button>
+      <h2>My Account</h2>
+      <p id="account-info"></p>
+
+      <div class="section-label" style="margin-top:0.5rem;">Saved circuits</div>
+      <div class="saved-list" id="saved-list">
+        <div class="empty-saves">No circuits saved yet.</div>
+      </div>
+
+      <button class="signout-btn" id="btn-signout">Sign Out</button>
     </div>
   </div>
 
-  <hr class="section-divider" style="margin: 3rem 0;" />
+  <!-- NAV -->
+  <nav>
+    <div class="logo">Mobility<span>Flow</span></div>
+    <div id="nav-auth-area"></div>
+  </nav>
 
-  <div class="section-label">Step 2</div>
-  <div class="section-title">How much time do you have?</div>
-  <div class="section-sub">Select the duration that best fits your schedule.</div>
-  <div class="time-options">
-    <div class="time-pill" data-time="5">5 min</div>
-    <div class="time-pill" data-time="10">10 min</div>
-    <div class="time-pill" data-time="15">15 min</div>
-    <div class="time-pill" data-time="20">20 min</div>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="badge">Daily mobility companion</div>
+    <h1>Build guided <span>mobility circuits</span> in minutes.</h1>
+    <p>
+      Choose morning or night, your available time, and your mobility goals. We’ll build a simple, guided
+      circuit with clear step‑by‑step instructions for every exercise.
+    </p>
+    <a href="#builder" class="hero-cta">Start a circuit →</a>
+  </section>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat">
+      <div class="num">20+</div>
+      <div class="label">Mobility moves</div>
+    </div>
+    <div class="stat">
+      <div class="num">2</div>
+      <div class="label">Daily sessions</div>
+    </div>
+    <div class="stat">
+      <div class="num">5–20</div>
+      <div class="label">Minutes per circuit</div>
+    </div>
+    <div class="stat">
+      <div class="num">6</div>
+      <div class="label">Goal types</div>
+    </div>
   </div>
 
-  <hr class="section-divider" style="margin: 3rem 0;" />
+  <!-- Builder -->
+  <section class="section" id="builder">
+    <div class="steps">
+      <div class="step-item" id="si-1">
+        <div class="step-num">1</div>
+        <div class="step-text">Session</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-item" id="si-2">
+        <div class="step-num">2</div>
+        <div class="step-text">Duration</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-item" id="si-3">
+        <div class="step-num">3</div>
+        <div class="step-text">Goals</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-item" id="si-4">
+        <div class="step-num">4</div>
+        <div class="step-text">Circuit</div>
+      </div>
+    </div>
 
-  <div class="section-label">Step 3</div>
-  <div class="section-title">What are your mobility goals?</div>
-  <div class="section-sub">Pick one or more — your circuit will be tailored to match.</div>
-  <div class="goal-tags">
-    <div class="goal-tag" data-goal="flexibility">🧘 Flexibility</div>
-    <div class="goal-tag" data-goal="posture">🦴 Better Posture</div>
-    <div class="goal-tag" data-goal="stress">💆 Stress Relief</div>
-    <div class="goal-tag" data-goal="strength">💪 Joint Strength</div>
-    <div class="goal-tag" data-goal="energy">⚡ Energy Boost</div>
-    <div class="goal-tag" data-goal="recovery">🔄 Recovery</div>
-  </div>
+    <!-- Step 1 -->
+    <div class="section-label">Step 1</div>
+    <div class="section-title">When are you stretching?</div>
+    <div class="section-sub">Pick a morning wake‑up or night wind‑down session.</div>
 
-  <div>
-    <button class="btn-primary" id="build-btn" disabled>Generate My Circuit →</button>
-    <button class="btn-ghost"   id="reset-btn">↺ Reset</button>
-  </div>
-</div>
+    <div class="grid" id="session-grid">
+      <div class="card-select" data-session="morning">
+        <div class="check">✓</div>
+        <div class="card-icon">🌅</div>
+        <div class="card-title">Morning wake‑up</div>
+        <div class="card-text">
+          Gently shake off sleep, open tight joints and build energy for the day.
+        </div>
+      </div>
+      <div class="card-select" data-session="night">
+        <div class="check">✓</div>
+        <div class="card-icon">🌙</div>
+        <div class="card-title">Night wind‑down</div>
+        <div class="card-text">
+          Release the day, calm your nervous system and prepare for deep sleep.
+        </div>
+      </div>
+    </div>
 
-<hr class="section-divider" />
+    <hr class="divider" />
 
-<!-- ══ RESULTS ══════════════════════════════════════════════ -->
-<div class="section" id="results">
-  <div class="results-tag"   id="results-tag"></div>
-  <div class="results-title" id="results-title">Your Personalised Circuit</div>
-  <div class="results-sub"   id="results-sub"></div>
-  <div class="results-summary" id="results-summary"></div>
-  <div class="exercise-list"   id="exercise-list"></div>
-  <div>
-    <button class="btn-primary" id="new-circuit-btn">↺ Build a New Circuit</button>
-    <button class="btn-save"    id="save-btn">💾 Save Circuit</button>
-  </div>
-</div>
+    <!-- Step 2 -->
+    <div class="section-label">Step 2</div>
+    <div class="section-title">How much time do you have?</div>
+    <div class="section-sub">Choose a duration. Longer circuits add a few extra moves.</div>
 
-<footer>
-  <p>Made with 🌿 by <strong>MobilityFlow</strong> &nbsp;·&nbsp; Move every day, feel it forever.</p>
-</footer>
+    <div class="pill-row" id="time-row">
+      <button class="pill" data-time="5">5 min</button>
+      <button class="pill" data-time="10">10 min</button>
+      <button class="pill" data-time="15">15 min</button>
+      <button class="pill" data-time="20">20 min</button>
+    </div>
 
-<!-- ══ ALL SCRIPTS IN ONE MODULE ════════════════════════════ -->
-<script type="module">
+    <hr class="divider" />
 
-  /* ── 1. FIREBASE IMPORTS ─────────────────────────────────── */
-  import { initializeApp } from
-    "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import {
-    getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-    signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateProfile
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import {
-    getFirestore, collection, addDoc, getDocs, deleteDoc,
-    doc, query, orderBy, serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    <!-- Step 3 -->
+    <div class="section-label">Step 3</div>
+    <div class="section-title">What are your mobility goals?</div>
+    <div class="section-sub">Pick one or more. Your circuit will blend them together.</div>
 
-  /* ── 2. YOUR FIREBASE CONFIG — PASTE HERE ────────────────── */
-  const firebaseConfig = {
-    apiKey:            "AIzaSyCEuAYZzbaq3CZP-cK6M-akhKt7IkgWwOc",
-    authDomain:        "mobilityflow-ea883.firebaseapp.com",
-    projectId:         "mobilityflow-ea883",
-    storageBucket:     "mobilityflow-ea883.firebasestorage.app",
-    messagingSenderId: "750067463853",
-    appId:             "1:750067463853:web:954b4dc35e3891e89af824"
-  };
-  /* ─────────────────────────────────────────────────────────── */
+    <div class="pill-row" id="goal-row">
+      <button class="pill goal" data-goal="flexibility">🧘 Flexibility</button>
+      <button class="pill goal" data-goal="posture">🦴 Posture</button>
+      <button class="pill goal" data-goal="stress">💆 Stress relief</button>
+      <button class="pill goal" data-goal="strength">💪 Joint strength</button>
+      <button class="pill goal" data-goal="energy">⚡ Energy</button>
+      <button class="pill goal" data-goal="recovery">🔄 Recovery</button>
+    </div>
 
-  const app      = initializeApp(firebaseConfig);
-  const auth     = getAuth(app);
-  const db       = getFirestore(app);
-  const gProvider = new GoogleAuthProvider();
+    <div style="margin-top:1.8rem;">
+      <button class="btn-primary" id="btn-build" disabled>Generate my circuit →</button>
+      <button class="btn-secondary" id="btn-reset">↺ Reset</button>
+    </div>
+  </section>
 
-  /* ── 3. APP STATE ─────────────────────────────────────────── */
-  let currentUser     = null;
-  let selectedSession = null;
-  let selectedTime    = null;
-  let selectedGoals   = [];
-  let lastCircuit     = [];
-  let savedSnap       = {};
+  <hr class="divider" />
 
-  /* ── 4. DOM REFS ──────────────────────────────────────────── */
-  const navAuthArea       = document.getElementById('nav-auth-area');
-  const authOverlay       = document.getElementById('auth-overlay');
-  const panelModal        = document.getElementById('panel-modal');
-  const modalError        = document.getElementById('modal-error');
-  const formSignin        = document.getElementById('form-signin');
-  const formRegister      = document.getElementById('form-register');
-  const tabSignin         = document.getElementById('tab-signin');
-  const tabRegister       = document.getElementById('tab-register');
-  const buildBtn          = document.getElementById('build-btn');
-  const saveBtn           = document.getElementById('save-btn');
-  const savedCircuitsList = document.getElementById('saved-circuits-list');
-  const panelUserInfo     = document.getElementById('panel-user-info');
+  <!-- Results -->
+  <section class="section" id="results">
+    <div class="tag" id="results-tag"></div>
+    <h2 class="section-title" id="results-title">Your personalised circuit</h2>
+    <p class="section-sub" id="results-sub"></p>
 
-  /* ── 5. AUTH STATE ────────────────────────────────────────── */
-  onAuthStateChanged(auth, user => {
-    currentUser = user;
-    renderNav();
-  });
+    <div class="summary" id="results-summary"></div>
 
-  function renderNav() {
-    if (currentUser) {
-      const initials = (currentUser.displayName || currentUser.email || 'U')
-        .split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-      const shortName = currentUser.displayName || currentUser.email.split('@')[0];
-      navAuthArea.innerHTML = `
-        <button class="user-avatar-btn" id="btn-open-panel">
-          <div class="avatar-circle">${initials}</div>
-          <span>${shortName}</span>
-        </button>`;
-      document.getElementById('btn-open-panel')
-        .addEventListener('click', openPanel);
-    } else {
-      navAuthArea.innerHTML = `
-        <button class="nav-auth-btn btn-signin"     id="btn-nav-signin">Sign In</button>
-        <button class="nav-auth-btn btn-getstarted" id="btn-nav-register">Get Started</button>`;
-      document.getElementById('btn-nav-signin')
-        .addEventListener('click', () => openAuthModal('signin'));
-      document.getElementById('btn-nav-register')
-        .addEventListener('click', () => openAuthModal('register'));
+    <div class="exercise-list" id="exercise-list"></div>
+
+    <div style="margin-top:1.6rem;">
+      <button class="btn-primary" id="btn-new">↺ Build a new circuit</button>
+      <button class="btn-save" id="btn-save">💾 Save circuit</button>
+    </div>
+  </section>
+
+  <footer>
+    Made with 🌿 by <strong>MobilityFlow</strong> · Always listen to your body and stop if something hurts.
+  </footer>
+
+  <!-- MAIN SCRIPT -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signInWithPopup,
+      signInWithRedirect,
+      getRedirectResult,
+      GoogleAuthProvider,
+      updateProfile,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      deleteDoc,
+      doc,
+      query,
+      orderBy,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    /* ---------- 1. Firebase config (REPLACE THIS) ---------- */
+    const firebaseConfig = {
+      apiKey: "AIzaSyCEuAYZzbaq3CZP-cK6M-akhKt7IkgWwOc",
+      authDomain: "mobilityflow-ea883.firebaseapp.com",
+      projectId: "mobilityflow-ea883",
+      storageBucket: "mobilityflow-ea883.firebasestorage.app",
+      messagingSenderId: "750067463853",
+      appId: "1:750067463853:web:954b4dc35e3891e89af824"
+    };
+
+    const hasPlaceholder = Object.values(firebaseConfig).some(
+      v => !v || String(v).includes("YOUR_")
+    );
+    if (hasPlaceholder) {
+      alert("Replace firebaseConfig with your real Firebase config before using this page.");
+      throw new Error("Firebase config still contains placeholder values.");
     }
-  }
 
-  /* ── 6. AUTH MODAL ────────────────────────────────────────── */
-  function openAuthModal(tab = 'signin') {
-    authOverlay.classList.add('open');
-    switchTab(tab);
-    clearModalError();
-  }
-  function closeAuthModal() {
-    authOverlay.classList.remove('open');
-    clearModalError();
-  }
-  function switchTab(tab) {
-    formSignin.style.display   = tab === 'signin'   ? '' : 'none';
-    formRegister.style.display = tab === 'register' ? '' : 'none';
-    tabSignin.classList.toggle('active',   tab === 'signin');
-    tabRegister.classList.toggle('active', tab === 'register');
-    clearModalError();
-  }
-  function showModalError(msg) { modalError.textContent = msg; modalError.style.display = 'block'; }
-  function clearModalError()   { modalError.textContent = '';  modalError.style.display = 'none';  }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+    const gProvider = new GoogleAuthProvider();
+    gProvider.setCustomParameters({ prompt: "select_account" });
 
-  /* Tab buttons */
-  tabSignin.addEventListener('click',   () => switchTab('signin'));
-  tabRegister.addEventListener('click', () => switchTab('register'));
+    /* ---------- 2. State ---------- */
+    let currentUser = null;
+    let selectedSession = null;   // "morning" | "night"
+    let selectedTime    = null;   // 5 | 10 | 15 | 20
+    let selectedGoals   = [];     // ['flexibility', ...]
+    let lastCircuit     = [];     // exercise name list
+    let savedSnap       = {};     // id -> circuit data
 
-  /* Close buttons */
-  document.getElementById('btn-close-auth').addEventListener('click', closeAuthModal);
-  authOverlay.addEventListener('click', e => { if (e.target === authOverlay) closeAuthModal(); });
+    /* ---------- 3. Helper: Toast ---------- */
+    const toastEl = document.getElementById("toast");
+    let toastTimer;
 
-  /* Sign In */
-  document.getElementById('btn-do-signin').addEventListener('click', async () => {
-    const email = document.getElementById('si-email').value.trim();
-    const pass  = document.getElementById('si-password').value;
-    if (!email || !pass) { showModalError('Please fill in all fields.'); return; }
-    try {
-      await signInWithEmailAndPassword(auth, email, pass);
-      closeAuthModal();
-      showToast('Welcome back! 👋', 'success');
-    } catch(e) { showModalError(friendlyError(e.code)); }
-  });
+    function showToast(msg, type = "success") {
+      toastEl.textContent = msg;
+      toastEl.className = `toast ${type} show`;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove("show"), 3200);
+    }
 
-  /* Register */
-  document.getElementById('btn-do-register').addEventListener('click', async () => {
-    const name  = document.getElementById('reg-name').value.trim();
-    const email = document.getElementById('reg-email').value.trim();
-    const pass  = document.getElementById('reg-password').value;
-    if (!name || !email || !pass) { showModalError('Please fill in all fields.'); return; }
-    if (pass.length < 6) { showModalError('Password must be at least 6 characters.'); return; }
-    try {
-      const cred = await createUserWithEmailAndPassword(auth, email, pass);
-      await updateProfile(cred.user, { displayName: name });
-      currentUser = cred.user;
-      renderNav();
-      closeAuthModal();
-      showToast('Account created! Welcome 🌿', 'success');
-    } catch(e) { showModalError(friendlyError(e.code)); }
-  });
+    /* ---------- 4. Auth UI helpers ---------- */
+    const authOverlay    = document.getElementById("auth-overlay");
+    const accountOverlay = document.getElementById("account-overlay");
+    const authErrorBox   = document.getElementById("auth-error");
+    const navAuthArea    = document.getElementById("nav-auth-area");
+    const accountInfo    = document.getElementById("account-info");
+    const savedListEl    = document.getElementById("saved-list");
 
-  /* Google (both forms) */
-  async function doGoogle() {
-    try {
-      await signInWithPopup(auth, gProvider);
-      closeAuthModal();
-      showToast('Signed in with Google! 👋', 'success');
-    } catch(e) { showModalError(friendlyError(e.code)); }
-  }
-  document.getElementById('btn-do-google-signin').addEventListener('click',    doGoogle);
-  document.getElementById('btn-do-google-register').addEventListener('click',  doGoogle);
+    function openAuthModal(tab = "signin") {
+      authOverlay.classList.add("open");
+      switchAuthTab(tab);
+      clearAuthError();
+    }
 
-  function friendlyError(code) {
-    return ({
-      'auth/user-not-found':       'No account found with that email.',
-      'auth/wrong-password':       'Incorrect password. Please try again.',
-      'auth/invalid-credential':   'Incorrect email or password. Please try again.',
-      'auth/email-already-in-use': 'That email is already registered. Try signing in.',
-      'auth/invalid-email':        'Please enter a valid email address.',
-      'auth/weak-password':        'Password should be at least 6 characters.',
-      'auth/popup-closed-by-user': 'Google sign-in was cancelled.',
-      'auth/network-request-failed':'Network error. Check your connection.',
-    })[code] || 'Something went wrong. Please try again.';
-  }
+    function closeAuthModal() {
+      authOverlay.classList.remove("open");
+      clearAuthError();
+    }
 
-  /* ── 7. ACCOUNT PANEL ─────────────────────────────────────── */
-  function openPanel() {
-    panelModal.classList.add('open');
-    renderPanelUser();
-    loadSavedCircuits();
-  }
-  function closePanel() { panelModal.classList.remove('open'); }
+    function openAccountPanel() {
+      if (!currentUser) {
+        openAuthModal("signin");
+        return;
+      }
+      renderAccountInfo();
+      loadSavedCircuits();
+      accountOverlay.classList.add("open");
+    }
 
-  document.getElementById('btn-close-panel').addEventListener('click', closePanel);
-  panelModal.addEventListener('click', e => { if (e.target === panelModal) closePanel(); });
+    function closeAccountPanel() {
+      accountOverlay.classList.remove("open");
+    }
 
-  document.getElementById('btn-signout').addEventListener('click', async () => {
-    await signOut(auth);
-    closePanel();
-    showToast('Signed out. See you tomorrow! 🌿', 'success');
-  });
+    function switchAuthTab(tab) {
+      const siForm = document.getElementById("signin-form");
+      const regForm = document.getElementById("register-form");
+      const tSi = document.getElementById("tab-signin");
+      const tReg = document.getElementById("tab-register");
 
-  function renderPanelUser() {
-    if (!currentUser) return;
-    const initials = (currentUser.displayName || currentUser.email || 'U')
-      .split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-    panelUserInfo.innerHTML = `
-      <div class="panel-avatar">${initials}</div>
-      <div>
-        <div class="panel-user-name">${currentUser.displayName || 'Mobility Athlete'}</div>
-        <div class="panel-user-email">${currentUser.email}</div>
-      </div>`;
-  }
+      siForm.style.display  = tab === "signin" ? "block" : "none";
+      regForm.style.display = tab === "register" ? "block" : "none";
+      tSi.classList.toggle("active", tab === "signin");
+      tReg.classList.toggle("active", tab === "register");
+      clearAuthError();
+    }
 
-  /* ── 8. FIRESTORE: SAVE ───────────────────────────────────── */
-  saveBtn.addEventListener('click', async () => {
-    if (!currentUser) { openAuthModal('signin'); return; }
-    if (!lastCircuit.length) return;
-    try {
-      const ref = collection(db, 'users', currentUser.uid, 'circuits');
-      await addDoc(ref, {
-        session: selectedSession, time: selectedTime,
-        goals: selectedGoals, exercises: lastCircuit,
-        savedAt: serverTimestamp(),
-      });
-      showToast('Circuit saved! 💾', 'success');
-      saveBtn.textContent = '✓ Saved!';
-      saveBtn.disabled = true;
-    } catch(e) { showToast('Could not save. Try again.', 'error'); }
-  });
+    function showAuthError(message) {
+      authErrorBox.textContent = message;
+      authErrorBox.style.display = "block";
+    }
 
-  /* ── 9. FIRESTORE: LOAD LIST ──────────────────────────────── */
-  async function loadSavedCircuits() {
-    if (!currentUser) return;
-    savedCircuitsList.innerHTML = '<div class="empty-saves"><div>⏳</div>Loading...</div>';
-    try {
-      const ref  = collection(db, 'users', currentUser.uid, 'circuits');
-      const q    = query(ref, orderBy('savedAt', 'desc'));
-      const snap = await getDocs(q);
+    function clearAuthError() {
+      authErrorBox.textContent = "";
+      authErrorBox.style.display = "none";
+    }
 
-      savedSnap = {};
-      snap.forEach(ds => { savedSnap[ds.id] = ds.data(); });
+    function friendlyError(code) {
+      const map = {
+        "auth/invalid-email": "Please enter a valid email.",
+        "auth/missing-password": "Please enter your password.",
+        "auth/wrong-password": "Incorrect password.",
+        "auth/user-not-found": "No account found with that email.",
+        "auth/email-already-in-use": "That email is already registered.",
+        "auth/weak-password": "Password must be at least 6 characters.",
+        "auth/operation-not-allowed": "This sign-in method is not enabled in Firebase.",
+        "auth/unauthorized-domain": "This domain is not authorised in Firebase Authentication.",
+        "auth/network-request-failed": "Network request failed. Test on localhost or a deployed site.",
+        "auth/popup-blocked": "The Google sign-in popup was blocked by your browser.",
+        "auth/popup-closed-by-user": "The Google popup was closed before completing sign in.",
+        "auth/invalid-api-key": "Your Firebase API key is invalid.",
+        "auth/invalid-credential": "Incorrect email or password."
+      };
+      return map[code] || `Something went wrong. (${code})`;
+    }
 
-      if (snap.empty) {
-        savedCircuitsList.innerHTML =
-          '<div class="empty-saves"><div>🌿</div>No saved circuits yet.<br/>Build one and hit Save!</div>';
+    /* ---------- 5. Auth actions ---------- */
+    async function handleEmailSignIn() {
+      clearAuthError();
+      const email = document.getElementById("si-email").value.trim();
+      const pass  = document.getElementById("si-password").value;
+
+      if (!email || !pass) {
+        showAuthError("Please fill in both email and password.");
         return;
       }
 
-      savedCircuitsList.innerHTML = '';
-      snap.forEach(ds => {
-        const d = ds.data();
-        const sessionLabel = d.session === 'morning' ? '🌅 Morning' : '🌙 Night';
-        const goalMap = { flexibility:'Flexibility', posture:'Posture', stress:'Stress Relief', strength:'Strength', energy:'Energy', recovery:'Recovery' };
-        const dateStr = d.savedAt?.toDate
-          ? d.savedAt.toDate().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
-          : 'Recently';
-
-        const card = document.createElement('div');
-        card.className = 'saved-circuit-card';
-        card.innerHTML = `
-          <div class="saved-circuit-header">
-            <div>
-              <div class="saved-circuit-name">${sessionLabel} · ${d.time} min</div>
-              <div class="saved-circuit-meta">Saved ${dateStr} · ${(d.exercises||[]).length} exercises</div>
-            </div>
-            <div class="saved-actions">
-              <button class="btn-load-circuit"   data-id="${ds.id}">▶ Load</button>
-              <button class="btn-delete-circuit" data-id="${ds.id}">✕</button>
-            </div>
-          </div>
-          <div class="saved-circuit-tags">
-            ${(d.goals||[]).map(g => `<span class="s-tag">${goalMap[g]||g}</span>`).join('')}
-          </div>`;
-        savedCircuitsList.appendChild(card);
-      });
-
-      /* Attach listeners after DOM insert */
-      savedCircuitsList.querySelectorAll('.btn-load-circuit').forEach(btn => {
-        btn.addEventListener('click', () => loadCircuit(btn.dataset.id));
-      });
-      savedCircuitsList.querySelectorAll('.btn-delete-circuit').forEach(btn => {
-        btn.addEventListener('click', () => deleteCircuit(btn.dataset.id, btn));
-      });
-
-    } catch(e) {
-      savedCircuitsList.innerHTML = '<div class="empty-saves"><div>⚠️</div>Error loading circuits.</div>';
-    }
-  }
-
-  function loadCircuit(docId) {
-    const d = savedSnap[docId];
-    if (!d) return;
-    selectedSession = d.session;
-    selectedTime    = d.time;
-    selectedGoals   = d.goals || [];
-
-    document.querySelectorAll('[data-session]').forEach(el =>
-      el.classList.toggle('selected', el.dataset.session === d.session));
-    document.querySelectorAll('[data-time]').forEach(el =>
-      el.classList.toggle('selected', parseInt(el.dataset.time) === d.time));
-    document.querySelectorAll('[data-goal]').forEach(el =>
-      el.classList.toggle('selected', selectedGoals.includes(el.dataset.goal)));
-
-    updateStepIndicator();
-    updateBuildButton();
-    renderResults(d.exercises || []);
-    closePanel();
-    showToast('Circuit loaded! 🌿', 'success');
-  }
-
-  async function deleteCircuit(docId, btn) {
-    if (!currentUser) return;
-    btn.textContent = '…';
-    try {
-      await deleteDoc(doc(db, 'users', currentUser.uid, 'circuits', docId));
-      showToast('Circuit deleted.', 'success');
-      loadSavedCircuits();
-    } catch(e) { showToast('Could not delete.', 'error'); btn.textContent = '✕'; }
-  }
-
-  /* ── 10. EXERCISE DATA ────────────────────────────────────── */
-  const exercises = {
-    morning: {
-      flexibility: { 5:["Cat-Cow Stretch","Seated Forward Fold","Standing Side Reach"], 10:["Cat-Cow Stretch","Seated Forward Fold","Standing Side Reach","Supine Spinal Twist","Hip Flexor Stretch"], 15:["Cat-Cow Stretch","Seated Forward Fold","Standing Side Reach","Supine Spinal Twist","Hip Flexor Stretch","Doorway Chest Opener","Standing Quad Stretch"], 20:["Cat-Cow Stretch","Seated Forward Fold","Standing Side Reach","Supine Spinal Twist","Hip Flexor Stretch","Doorway Chest Opener","Standing Quad Stretch","Pigeon Pose Prep","Neck Half Circles"] },
-      posture:      { 5:["Chin Tucks","Shoulder Blade Squeeze","Chest Opener Arms"], 10:["Chin Tucks","Shoulder Blade Squeeze","Chest Opener Arms","Cat-Cow Stretch","Wall Angels"], 15:["Chin Tucks","Shoulder Blade Squeeze","Chest Opener Arms","Cat-Cow Stretch","Wall Angels","Thoracic Extension on Foam Roller","Hip Flexor Stretch"], 20:["Chin Tucks","Shoulder Blade Squeeze","Chest Opener Arms","Cat-Cow Stretch","Wall Angels","Thoracic Extension on Foam Roller","Hip Flexor Stretch","Doorway Chest Opener","Supine Spinal Twist"] },
-      energy:       { 5:["Sun Salutation Flow","Standing Side Reach","High Knees in Place"], 10:["Sun Salutation Flow","Standing Side Reach","High Knees in Place","Arm Circles","Hip Circles"], 15:["Sun Salutation Flow","Standing Side Reach","High Knees in Place","Arm Circles","Hip Circles","Jumping Jacks","Dynamic Leg Swings"], 20:["Sun Salutation Flow","Standing Side Reach","High Knees in Place","Arm Circles","Hip Circles","Jumping Jacks","Dynamic Leg Swings","Inchworm Walk-Out","Squat to Stand"] },
-      strength:     { 5:["Glute Bridges","Dead Bug Hold","Bird Dog"], 10:["Glute Bridges","Dead Bug Hold","Bird Dog","Clamshells","Hip Circles"], 15:["Glute Bridges","Dead Bug Hold","Bird Dog","Clamshells","Hip Circles","Squat to Stand","Side-Lying Hip Abduction"], 20:["Glute Bridges","Dead Bug Hold","Bird Dog","Clamshells","Hip Circles","Squat to Stand","Side-Lying Hip Abduction","Inchworm Walk-Out","Bear Crawl Hold"] },
-      stress:       { 5:["Deep Breathing Stretch","Seated Forward Fold","Supine Spinal Twist"], 10:["Deep Breathing Stretch","Seated Forward Fold","Supine Spinal Twist","Child's Pose","Neck Half Circles"], 15:["Deep Breathing Stretch","Seated Forward Fold","Supine Spinal Twist","Child's Pose","Neck Half Circles","Hip Flexor Stretch","Pigeon Pose Prep"], 20:["Deep Breathing Stretch","Seated Forward Fold","Supine Spinal Twist","Child's Pose","Neck Half Circles","Hip Flexor Stretch","Pigeon Pose Prep","Legs Up the Wall","Cat-Cow Stretch"] },
-      recovery:     { 5:["Cat-Cow Stretch","Supine Spinal Twist","Glute Bridges"], 10:["Cat-Cow Stretch","Supine Spinal Twist","Glute Bridges","Child's Pose","Hip Flexor Stretch"], 15:["Cat-Cow Stretch","Supine Spinal Twist","Glute Bridges","Child's Pose","Hip Flexor Stretch","Pigeon Pose Prep","Calf Raises to Stretch"], 20:["Cat-Cow Stretch","Supine Spinal Twist","Glute Bridges","Child's Pose","Hip Flexor Stretch","Pigeon Pose Prep","Calf Raises to Stretch","Seated Forward Fold","Dead Bug Hold"] },
-    },
-    night: {
-      flexibility:  { 5:["Supine Spinal Twist","Legs Up the Wall","Child's Pose"], 10:["Supine Spinal Twist","Legs Up the Wall","Child's Pose","Seated Forward Fold","Pigeon Pose Prep"], 15:["Supine Spinal Twist","Legs Up the Wall","Child's Pose","Seated Forward Fold","Pigeon Pose Prep","Hip Flexor Stretch","Standing Side Reach"], 20:["Supine Spinal Twist","Legs Up the Wall","Child's Pose","Seated Forward Fold","Pigeon Pose Prep","Hip Flexor Stretch","Standing Side Reach","Doorway Chest Opener","Neck Half Circles"] },
-      posture:      { 5:["Chin Tucks","Chest Opener Arms","Thoracic Extension on Foam Roller"], 10:["Chin Tucks","Chest Opener Arms","Thoracic Extension on Foam Roller","Wall Angels","Supine Spinal Twist"], 15:["Chin Tucks","Chest Opener Arms","Thoracic Extension on Foam Roller","Wall Angels","Supine Spinal Twist","Hip Flexor Stretch","Shoulder Blade Squeeze"], 20:["Chin Tucks","Chest Opener Arms","Thoracic Extension on Foam Roller","Wall Angels","Supine Spinal Twist","Hip Flexor Stretch","Shoulder Blade Squeeze","Cat-Cow Stretch","Legs Up the Wall"] },
-      stress:       { 5:["Deep Breathing Stretch","Child's Pose","Legs Up the Wall"], 10:["Deep Breathing Stretch","Child's Pose","Legs Up the Wall","Supine Spinal Twist","Neck Half Circles"], 15:["Deep Breathing Stretch","Child's Pose","Legs Up the Wall","Supine Spinal Twist","Neck Half Circles","Seated Forward Fold","Pigeon Pose Prep"], 20:["Deep Breathing Stretch","Child's Pose","Legs Up the Wall","Supine Spinal Twist","Neck Half Circles","Seated Forward Fold","Pigeon Pose Prep","Hip Flexor Stretch","Cat-Cow Stretch"] },
-      strength:     { 5:["Glute Bridges","Clamshells","Dead Bug Hold"], 10:["Glute Bridges","Clamshells","Dead Bug Hold","Bird Dog","Side-Lying Hip Abduction"], 15:["Glute Bridges","Clamshells","Dead Bug Hold","Bird Dog","Side-Lying Hip Abduction","Hip Circles","Supine Spinal Twist"], 20:["Glute Bridges","Clamshells","Dead Bug Hold","Bird Dog","Side-Lying Hip Abduction","Hip Circles","Supine Spinal Twist","Cat-Cow Stretch","Child's Pose"] },
-      energy:       { 5:["Hip Circles","Arm Circles","Standing Side Reach"], 10:["Hip Circles","Arm Circles","Standing Side Reach","Dynamic Leg Swings","Cat-Cow Stretch"], 15:["Hip Circles","Arm Circles","Standing Side Reach","Dynamic Leg Swings","Cat-Cow Stretch","Squat to Stand","Supine Spinal Twist"], 20:["Hip Circles","Arm Circles","Standing Side Reach","Dynamic Leg Swings","Cat-Cow Stretch","Squat to Stand","Supine Spinal Twist","Child's Pose","Seated Forward Fold"] },
-      recovery:     { 5:["Legs Up the Wall","Child's Pose","Supine Spinal Twist"], 10:["Legs Up the Wall","Child's Pose","Supine Spinal Twist","Pigeon Pose Prep","Glute Bridges"], 15:["Legs Up the Wall","Child's Pose","Supine Spinal Twist","Pigeon Pose Prep","Glute Bridges","Calf Raises to Stretch","Seated Forward Fold"], 20:["Legs Up the Wall","Child's Pose","Supine Spinal Twist","Pigeon Pose Prep","Glute Bridges","Calf Raises to Stretch","Seated Forward Fold","Cat-Cow Stretch","Deep Breathing Stretch"] },
-    }
-  };
-
-  const exerciseDetails = {
-    "Cat-Cow Stretch":{ duration:"60 sec", targets:"Spine · Core", icon:"🐱", steps:["Start on all fours with wrists under shoulders and knees under hips.","Inhale: drop your belly toward the floor, lift your chest and tailbone (Cow).","Exhale: round your spine toward the ceiling, tuck your chin and pelvis (Cat).","Flow slowly between both positions, led by your breath.","Complete 8–10 full breath cycles at a comfortable pace."], tip:"<strong>Tip:</strong> Let your breath drive the movement — don't rush. The slower and more deliberate, the more benefit for spinal mobility." },
-    "Seated Forward Fold":{ duration:"60 sec", targets:"Hamstrings · Lower Back", icon:"🧘", steps:["Sit on the floor with both legs extended straight in front of you.","Flex your feet, pointing toes toward the ceiling.","Inhale to lengthen your spine, sitting tall.","Exhale and hinge forward at the hips, reaching hands toward your feet.","Hold the deepest comfortable position for 30–60 seconds, breathing steadily."], tip:"<strong>Tip:</strong> Keep your spine long rather than rounding aggressively. A slight bend in the knees is fine to protect your lower back." },
-    "Standing Side Reach":{ duration:"45 sec each side", targets:"Obliques · Lats · Shoulders", icon:"🙆", steps:["Stand with feet hip-width apart, arms by your sides.","Raise your right arm overhead and reach it toward the left.","Lean your torso gently to the left, feeling a stretch along your right side.","Hold for 20–30 seconds, breathing into the stretch.","Return to centre and repeat on the other side."], tip:"<strong>Tip:</strong> Keep your hips level and avoid collapsing forward. Think of reaching up and over, not just sideways." },
-    "Supine Spinal Twist":{ duration:"60 sec each side", targets:"Thoracic Spine · Glutes · Hips", icon:"🌀", steps:["Lie on your back with legs extended flat.","Draw your right knee to your chest, then guide it across your body to the left.","Extend your right arm out to the side at shoulder height, palm facing up.","Turn your gaze to the right and relax your shoulders into the floor.","Hold for 30–60 seconds, then repeat on the other side."], tip:"<strong>Tip:</strong> Don't force the knee to the floor — let gravity do the work. Breathe deeply to deepen the twist." },
-    "Hip Flexor Stretch":{ duration:"60 sec each side", targets:"Hip Flexors · Quads · Lower Back", icon:"🦵", steps:["Kneel on your right knee with your left foot flat on the floor in front.","Shift your hips forward until you feel a stretch in the front of your right hip.","Keep your torso upright — avoid leaning forward.","Optionally raise your right arm overhead to deepen the stretch.","Hold for 30–60 seconds, then switch sides."], tip:"<strong>Tip:</strong> Squeeze your back glute gently during the stretch to increase the hip flexor opening." },
-    "Doorway Chest Opener":{ duration:"45 sec each side", targets:"Chest · Anterior Shoulders · Biceps", icon:"🚪", steps:["Stand in a doorway and place your right forearm on the frame, elbow at shoulder height.","Step your right foot forward through the doorway.","Gently rotate your body to the left until you feel a stretch across your chest.","Hold for 20–30 seconds, breathing steadily.","Release and repeat on the left side."], tip:"<strong>Tip:</strong> Try three different arm heights (low, middle, high) to target different fibres of the chest." },
-    "Standing Quad Stretch":{ duration:"45 sec each side", targets:"Quadriceps · Hip Flexors", icon:"🦿", steps:["Stand on your left foot, holding a wall for balance if needed.","Bend your right knee and bring your right heel toward your glute.","Grasp your right ankle with your right hand.","Stand tall, keep knees together, and gently push your hip forward.","Hold for 30–45 seconds, then switch legs."], tip:"<strong>Tip:</strong> Avoid arching your lower back. Keep your core slightly engaged and your standing knee soft." },
-    "Pigeon Pose Prep":{ duration:"90 sec each side", targets:"Glutes · Hip Rotators · IT Band", icon:"🕊️", steps:["Lie on your back with both knees bent, feet flat on the floor.","Cross your right ankle over your left knee, flexing your right foot.","Thread your right hand through the gap and interlace hands behind your left thigh.","Draw your left knee toward your chest until you feel a deep stretch in your right glute.","Hold for 60–90 seconds, then switch sides."], tip:"<strong>Tip:</strong> Keep your flexed foot active to protect your knee joint throughout the hold." },
-    "Neck Half Circles":{ duration:"60 sec", targets:"Cervical Spine · Neck Muscles", icon:"🔄", steps:["Sit or stand comfortably with your spine tall.","Drop your right ear toward your right shoulder gently.","Slowly roll your chin down toward your chest.","Continue rolling to drop your left ear toward your left shoulder.","Reverse the movement. Complete 4–5 slow half circles each direction. Never roll the head fully back."], tip:"<strong>Tip:</strong> Move extremely slowly — this area is sensitive. Stop immediately if you feel sharp pain or dizziness." },
-    "Chin Tucks":{ duration:"45 sec", targets:"Deep Neck Flexors · Cervical Spine", icon:"🧑", steps:["Sit or stand with your spine tall and shoulders relaxed.","Imagine a string pulling the crown of your head toward the ceiling.","Without tilting your head, gently draw your chin straight back.","Hold the tucked position for 3–5 seconds.","Release and repeat 10–12 times."], tip:"<strong>Tip:</strong> This counteracts 'tech neck'. Think of moving your head straight back, not tilting it down." },
-    "Shoulder Blade Squeeze":{ duration:"45 sec", targets:"Rhomboids · Middle Trapezius · Posture Muscles", icon:"🏋️", steps:["Sit or stand with arms relaxed at your sides.","Pull your shoulder blades together as if trying to hold a pencil between them.","Hold for 5 seconds, feeling the squeeze in your upper back.","Slowly release and let your shoulders relax.","Repeat 10–15 times at a steady, controlled pace."], tip:"<strong>Tip:</strong> Keep your shoulders down — avoid shrugging. Focus on the movement from your mid-back, not your arms." },
-    "Chest Opener Arms":{ duration:"45 sec", targets:"Chest · Front Shoulders", icon:"💪", steps:["Stand tall with feet hip-width apart.","Extend both arms out to your sides at shoulder height, palms facing forward.","Gently squeeze your shoulder blades together and open your chest wide.","Hold for 3–5 seconds, breathing in as you open.","Release and repeat 10 times, deepening with each rep."], tip:"<strong>Tip:</strong> For a deeper stretch, clasp your hands behind your back and gently lift them away from your body." },
-    "Wall Angels":{ duration:"60 sec", targets:"Shoulders · Thoracic Spine · Postural Muscles", icon:"👼", steps:["Stand with your back against a flat wall, feet 6 inches from the base.","Press your lower back, upper back, and head into the wall.","Raise your arms to shoulder height, elbows bent 90°, pressing them into the wall.","Slowly slide your arms up the wall overhead, keeping everything in contact with the wall.","Slide back down. Repeat 8–10 times slowly."], tip:"<strong>Tip:</strong> If your arms lift off the wall, only go as high as you can while maintaining contact. Range will improve with practice." },
-    "Thoracic Extension on Foam Roller":{ duration:"60 sec", targets:"Thoracic Spine · Chest · Shoulders", icon:"🪵", steps:["Place a foam roller horizontally on the floor.","Sit in front of it and lean back so the roller sits just below your shoulder blades.","Support your head with both hands interlaced behind your neck.","Gently drape your upper back over the roller, allowing your thoracic spine to extend.","Hold for 30 seconds, then shift the roller slightly and repeat."], tip:"<strong>Tip:</strong> A rolled-up towel works as a substitute. Only extend the mid-back — keep the lower back neutral." },
-    "Deep Breathing Stretch":{ duration:"2 min", targets:"Diaphragm · Nervous System · Chest", icon:"🌬️", steps:["Lie on your back or sit comfortably with your spine straight.","Place one hand on your chest and one on your belly.","Inhale slowly through your nose for 4 counts, belly rising first.","Pause for 1–2 counts at the top of the breath.","Exhale slowly through your mouth for 6–8 counts. Repeat 8–10 cycles."], tip:"<strong>Tip:</strong> This activates your parasympathetic nervous system, reducing cortisol and calming both mind and body." },
-    "Child's Pose":{ duration:"90 sec", targets:"Lower Back · Hips · Shoulders · Spine", icon:"🧘", steps:["Kneel on the floor with big toes touching and knees spread apart.","Sit back toward your heels as far as comfortable.","Extend both arms forward on the floor, lowering your forehead to the mat.","Let your chest and belly relax down between your thighs.","Hold for 60–90 seconds, breathing slowly and deeply into your back."], tip:"<strong>Tip:</strong> For tight hips, place a folded blanket between your thighs and calves. Walk hands to one side to add a lateral spine stretch." },
-    "Legs Up the Wall":{ duration:"2–3 min", targets:"Hamstrings · Lower Back · Nervous System", icon:"🦵", steps:["Sit sideways next to a clear wall and swing your legs up as you lie on your back.","Shuffle your hips close to the wall so your legs rest vertically against it.","Let your arms rest by your sides, palms facing up.","Close your eyes and breathe naturally, allowing gravity to decompress your spine.","Hold for 2–5 minutes. To come out, bend knees, roll to one side, and rise slowly."], tip:"<strong>Tip:</strong> Excellent for reducing ankle swelling, calming the nervous system, and reversing effects of prolonged sitting." },
-    "Sun Salutation Flow":{ duration:"2 min", targets:"Full Body · Circulation · Spine", icon:"☀️", steps:["Stand at the top of your mat, feet together, hands at heart centre.","Inhale: sweep arms overhead, look up slightly.","Exhale: fold forward, hands to floor (bend knees if needed).","Inhale: step or jump back to high plank. Exhale: lower to floor. Inhale: Cobra. Exhale: Downward Dog — hold 3 breaths.","Step forward and rise to stand. Repeat 2–3 times."], tip:"<strong>Tip:</strong> Move at half the pace you think you should. The breath should always lead the movement." },
-    "High Knees in Place":{ duration:"45 sec", targets:"Hip Flexors · Core · Cardiovascular", icon:"🏃", steps:["Stand with feet hip-width apart, arms bent at 90° at your sides.","Lift your right knee toward your chest while pumping your left arm forward.","Quickly switch to lift your left knee while pumping the right arm forward.","Continue alternating at a brisk pace, staying light on the balls of your feet.","Maintain an upright posture for 30–45 seconds."], tip:"<strong>Tip:</strong> For a lower-impact version, march slowly in place. Focus on driving the knee up, not just stepping forward." },
-    "Arm Circles":{ duration:"45 sec", targets:"Shoulders · Rotator Cuff · Thoracic Spine", icon:"🔄", steps:["Stand with feet shoulder-width apart, arms extended straight out to your sides.","Begin making small forward circles with both arms simultaneously.","Gradually increase the circle size over 10–15 seconds.","Reverse to large backward circles and decrease the size again.","Complete the full sequence twice with smooth, controlled motion."], tip:"<strong>Tip:</strong> Keep your shoulders away from your ears. This greatly improves shoulder joint lubrication and range of motion." },
-    "Hip Circles":{ duration:"45 sec", targets:"Hip Joints · Lower Back · Glutes", icon:"⭕", steps:["Stand with feet slightly wider than hip-width, hands on your hips.","Begin rotating your hips in a large clockwise circle.","Move slowly and deliberately, exploring the full range of motion.","Complete 8–10 circles clockwise, then reverse.","Keep your upper body relatively still — the movement comes from your hips."], tip:"<strong>Tip:</strong> This movement lubricates the hip joint and is excellent as a first exercise in any morning session." },
-    "Jumping Jacks":{ duration:"45 sec", targets:"Full Body · Cardiovascular · Coordination", icon:"⭐", steps:["Stand with feet together and arms at your sides.","Jump both feet out to shoulder-width while raising both arms overhead.","Jump feet back together while lowering arms back to your sides.","Maintain a steady, rhythmic pace — land softly on the balls of your feet.","Continue for 30–45 seconds at a comfortable pace."], tip:"<strong>Tip:</strong> Land with soft knees to reduce impact. For a low-impact version, step one foot out at a time." },
-    "Dynamic Leg Swings":{ duration:"45 sec each side", targets:"Hip Flexors · Hamstrings · Hip Joint", icon:"🦵", steps:["Stand sideways next to a wall, resting one hand on it for balance.","Shift weight to your left foot and let your right leg hang free.","Swing your right leg forward as high as comfortable, then backward in one smooth motion.","Keep the movement controlled — don't force the range.","Complete 10–12 swings forward/back, then turn and repeat on the other leg."], tip:"<strong>Tip:</strong> This is a dynamic stretch — don't try to hold the position. The swing itself creates the mobility benefit." },
-    "Inchworm Walk-Out":{ duration:"60 sec", targets:"Hamstrings · Core · Shoulders · Spine", icon:"🐛", steps:["Stand with feet hip-width apart.","Hinge at the hips and place your hands on the floor in front of your feet.","Walk your hands forward until you are in a high plank position.","Pause for 1–2 seconds in plank, keeping your core engaged and hips level.","Walk your hands back to your feet, then stand up. Repeat 4–6 times."], tip:"<strong>Tip:</strong> Keep your legs as straight as possible as you walk out to maximise the hamstring stretch." },
-    "Squat to Stand":{ duration:"60 sec", targets:"Hips · Hamstrings · Ankles · Thoracic Spine", icon:"🏋️", steps:["Stand with feet shoulder-width apart, toes angled slightly outward.","Bend down and grip your big toes with your hands, bending the knees generously.","Keeping hold of your toes, push your hips up toward the ceiling.","Lower back into a deep squat, then raise both arms overhead, opening the chest.","Stand up fully. Repeat 6–8 times in a slow, flowing manner."], tip:"<strong>Tip:</strong> This single movement works your entire posterior chain and thoracic spine simultaneously." },
-    "Glute Bridges":{ duration:"60 sec", targets:"Glutes · Hamstrings · Core · Lower Back", icon:"🍑", steps:["Lie on your back with knees bent, feet flat on the floor hip-width apart.","Place your arms flat by your sides, palms pressing into the floor.","Inhale to prepare, then exhale and press your feet into the floor, squeezing your glutes to lift your hips.","Raise your hips until your body forms a straight line from shoulders to knees.","Hold for 2–3 seconds at the top, then lower slowly. Repeat 12–15 times."], tip:"<strong>Tip:</strong> Drive through your heels, not your toes. The power should come from your glutes, not your lower back." },
-    "Dead Bug Hold":{ duration:"60 sec", targets:"Deep Core · Lumbar Spine Stability", icon:"🐞", steps:["Lie on your back with arms extended straight toward the ceiling.","Lift both legs to 90°, knees bent (tabletop position).","Press your lower back firmly into the floor — maintain this throughout.","Slowly lower your right arm overhead and left leg toward the floor simultaneously.","Return to start and repeat on the opposite side. Complete 6 reps per side."], tip:"<strong>Tip:</strong> The entire exercise is about keeping your lower back flat. If it lifts, reduce how far you extend the arm and leg." },
-    "Bird Dog":{ duration:"60 sec", targets:"Core · Lower Back · Glutes · Balance", icon:"🐦", steps:["Start on all fours with wrists under shoulders and knees under hips.","Engage your core by drawing your belly button gently inward.","Simultaneously extend your right arm forward and left leg backward.","Hold for 3–5 seconds, keeping your hips level.","Return to start and switch sides. Complete 8 reps per side."], tip:"<strong>Tip:</strong> Imagine balancing a glass of water on your lower back to cue perfectly level hips." },
-    "Clamshells":{ duration:"45 sec each side", targets:"Glutes · Hip Abductors · Hip Rotators", icon:"🦪", steps:["Lie on your side with hips stacked, knees bent to about 45°.","Rest your head on your lower arm and place your top hand on your hip.","Keeping your feet together, rotate your top knee upward like a clamshell opening.","Lift as high as you can without letting your hips roll backward.","Hold for 1–2 seconds at the top, lower slowly. Repeat 12–15 reps, then switch sides."], tip:"<strong>Tip:</strong> Place your hand on your top glute as you do this — you should feel it working." },
-    "Side-Lying Hip Abduction":{ duration:"45 sec each side", targets:"Glute Medius · Hip Abductors", icon:"🦵", steps:["Lie on your side with your body in a straight line, hips stacked.","Rest your head on your lower arm. Keep your top leg straight.","Flex your top foot (toes toward shin) and lift the leg up toward the ceiling.","Raise to about 45° — focus on quality, not height.","Slowly lower back down without letting it rest. Complete 12–15 reps per side."], tip:"<strong>Tip:</strong> Keep your top hip rolled slightly forward to isolate the glute medius rather than the hip flexor." },
-    "Bear Crawl Hold":{ duration:"45 sec", targets:"Core · Shoulders · Wrists · Hip Flexors", icon:"🐻", steps:["Start on all fours, then tuck your toes and lift your knees 1–2 inches off the ground.","Keep your back flat and parallel to the floor.","Hold this position with your core braced and breath controlled.","Maintain for 20–30 seconds to start, working up to 45–60 seconds.","To progress, slowly move one hand forward, then the opposite foot."], tip:"<strong>Tip:</strong> If your hips rise up or your lower back sags, reset and focus on keeping everything level." },
-    "Calf Raises to Stretch":{ duration:"60 sec", targets:"Calves · Achilles Tendon · Ankles", icon:"🦶", steps:["Stand with feet hip-width apart, holding a wall for light balance support.","Rise up onto the balls of both feet as high as possible, squeezing your calves.","Hold at the top for 1–2 seconds.","Lower your heels slowly all the way down and below the starting point if possible.","Complete 10–12 slow, controlled reps."], tip:"<strong>Tip:</strong> The slow lowering phase is what improves calf flexibility and Achilles tendon health." },
-  };
-
-  /* ── 11. BUILDER LOGIC ────────────────────────────────────── */
-  document.querySelectorAll('[data-session]').forEach(el => {
-    el.addEventListener('click', () => {
-      document.querySelectorAll('[data-session]').forEach(c => c.classList.remove('selected'));
-      el.classList.add('selected');
-      selectedSession = el.dataset.session;
-      updateStepIndicator(); updateBuildButton();
-    });
-  });
-
-  document.querySelectorAll('[data-time]').forEach(el => {
-    el.addEventListener('click', () => {
-      document.querySelectorAll('[data-time]').forEach(c => c.classList.remove('selected'));
-      el.classList.add('selected');
-      selectedTime = parseInt(el.dataset.time);
-      updateStepIndicator(); updateBuildButton();
-    });
-  });
-
-  document.querySelectorAll('[data-goal]').forEach(el => {
-    el.addEventListener('click', () => {
-      const goal = el.dataset.goal;
-      if (el.classList.contains('selected')) {
-        el.classList.remove('selected');
-        selectedGoals = selectedGoals.filter(g => g !== goal);
-      } else {
-        el.classList.add('selected');
-        selectedGoals.push(goal);
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        closeAuthModal();
+        showToast("Signed in 👋");
+      } catch (e) {
+        console.error("Email sign-in error:", e.code, e.message);
+        showAuthError(friendlyError(e.code));
       }
-      updateStepIndicator(); updateBuildButton();
+    }
+
+    async function handleRegister() {
+      clearAuthError();
+      const name  = document.getElementById("reg-name").value.trim();
+      const email = document.getElementById("reg-email").value.trim();
+      const pass  = document.getElementById("reg-password").value;
+
+      if (!name || !email || !pass) {
+        showAuthError("Please fill in all fields.");
+        return;
+      }
+      if (pass.length < 6) {
+        showAuthError("Password must be at least 6 characters.");
+        return;
+      }
+
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        await updateProfile(cred.user, { displayName: name });
+        closeAuthModal();
+        showToast("Account created 🌿");
+      } catch (e) {
+        console.error("Register error:", e.code, e.message);
+        showAuthError(friendlyError(e.code));
+      }
+    }
+
+    async function handleGoogleSignIn() {
+      clearAuthError();
+      try {
+        await signInWithPopup(auth, gProvider);
+        closeAuthModal();
+        showToast("Signed in with Google 👋");
+      } catch (e) {
+        console.error("Google sign-in error:", e.code, e.message);
+        // Fallback to redirect if popup blocked
+        if (e.code === "auth/popup-blocked" || e.code === "auth/popup-closed-by-user") {
+          await signInWithRedirect(auth, gProvider);
+          return;
+        }
+        showAuthError(friendlyError(e.code));
+      }
+    }
+
+    document.getElementById("btn-signin").addEventListener("click", handleEmailSignIn);
+    document.getElementById("btn-register").addEventListener("click", handleRegister);
+    document.getElementById("btn-google-si").addEventListener("click", handleGoogleSignIn);
+    document.getElementById("btn-google-reg").addEventListener("click", handleGoogleSignIn);
+
+    document.getElementById("tab-signin").addEventListener("click", () => switchAuthTab("signin"));
+    document.getElementById("tab-register").addEventListener("click", () => switchAuthTab("register"));
+
+    document.getElementById("auth-close").addEventListener("click", closeAuthModal);
+    authOverlay.addEventListener("click", e => { if (e.target === authOverlay) closeAuthModal(); });
+
+    document.getElementById("account-close").addEventListener("click", closeAccountPanel);
+    accountOverlay.addEventListener("click", e => { if (e.target === accountOverlay) closeAccountPanel(); });
+
+    document.getElementById("btn-signout").addEventListener("click", async () => {
+      await signOut(auth);
+      closeAccountPanel();
+      showToast("Signed out");
     });
-  });
 
-  buildBtn.addEventListener('click', buildCircuit);
+    // Handle Google redirect result
+    getRedirectResult(auth).then(result => {
+      if (result?.user) showToast("Signed in with Google 👋");
+    }).catch(e => console.error("Redirect result error:", e.code, e.message));
 
-  document.getElementById('reset-btn').addEventListener('click', resetAll);
-  document.getElementById('new-circuit-btn').addEventListener('click', resetAll);
+    /* ---------- 6. Render nav/account on auth state ---------- */
+    function renderNav(user) {
+      if (user) {
+        const initials = (user.displayName || user.email || "U")
+          .split(" ")
+          .map(p => p[0])
+          .join("")
+          .slice(0, 2)
+          .toUpperCase();
 
-  function updateStepIndicator() {
-    const s = [1,2,3,4].map(n => document.getElementById('si-' + n));
-    s.forEach(el => el.classList.remove('active', 'done'));
-    if (!selectedSession)      { s[0].classList.add('active'); return; }
-    s[0].classList.add('done');
-    if (!selectedTime)         { s[1].classList.add('active'); return; }
-    s[1].classList.add('done');
-    if (!selectedGoals.length) { s[2].classList.add('active'); return; }
-    s[2].classList.add('done');
-    s[3].classList.add('active');
-  }
+        navAuthArea.innerHTML = `
+          <button class="user-chip" id="btn-account">
+            <div class="avatar">${initials}</div>
+            <span>${user.displayName || user.email}</span>
+          </button>
+        `;
+        document.getElementById("btn-account").addEventListener("click", openAccountPanel);
+      } else {
+        navAuthArea.innerHTML = `
+          <button class="btn-outline" id="nav-signin">Sign in</button>
+          <button class="btn-solid" id="nav-register">Get started</button>
+        `;
+        document.getElementById("nav-signin").addEventListener("click", () => openAuthModal("signin"));
+        document.getElementById("nav-register").addEventListener("click", () => openAuthModal("register"));
+      }
+    }
 
-  function updateBuildButton() {
-    buildBtn.disabled = !(selectedSession && selectedTime && selectedGoals.length);
-  }
+    function renderAccountInfo() {
+      if (!currentUser) return;
+      accountInfo.textContent = `${currentUser.displayName || "User"} · ${currentUser.email}`;
+    }
 
-  function buildCircuit() {
-    const sessionData = exercises[selectedSession];
-    let all = [];
-    selectedGoals.forEach(goal => {
-      (sessionData[goal]?.[selectedTime] || []).forEach(ex => {
-        if (!all.includes(ex)) all.push(ex);
+    onAuthStateChanged(auth, user => {
+      currentUser = user;
+      renderNav(user);
+    });
+
+    /* ---------- 7. Firestore: save/load circuits ---------- */
+    async function saveCircuit() {
+      if (!currentUser) {
+        openAuthModal("signin");
+        return;
+      }
+      if (!lastCircuit.length) return;
+
+      try {
+        const ref = collection(db, "users", currentUser.uid, "circuits");
+        await addDoc(ref, {
+          session: selectedSession,
+          time: selectedTime,
+          goals: selectedGoals,
+          exercises: lastCircuit,
+          savedAt: serverTimestamp()
+        });
+        showToast("Circuit saved 💾");
+        const btnSave = document.getElementById("btn-save");
+        btnSave.textContent = "✓ Saved";
+        btnSave.disabled = true;
+      } catch (e) {
+        console.error("Save error:", e);
+        showToast("Could not save circuit.", "error");
+      }
+    }
+
+    async function loadSavedCircuits() {
+      if (!currentUser) return;
+      savedListEl.innerHTML = '<div class="empty-saves">Loading…</div>';
+
+      try {
+        const ref = collection(db, "users", currentUser.uid, "circuits");
+        const q = query(ref, orderBy("savedAt", "desc"));
+        const snap = await getDocs(q);
+
+        savedSnap = {};
+        if (snap.empty) {
+          savedListEl.innerHTML = '<div class="empty-saves">No circuits saved yet.</div>';
+          return;
+        }
+
+        let html = "";
+        snap.forEach(d => {
+          const data = d.data();
+          savedSnap[d.id] = data;
+          const when = data.session === "morning" ? "🌅 Morning" : "🌙 Night";
+          const goalsShort = (data.goals || []).join(", ");
+          const count = (data.exercises || []).length;
+          const dateStr = data.savedAt?.toDate
+            ? data.savedAt.toDate().toLocaleDateString("en-US", { month: "short", day: "numeric" })
+            : "Recently";
+
+          html += `
+            <div class="saved-card">
+              <div class="saved-header">
+                <div>
+                  <div class="saved-name">${when} · ${data.time} min</div>
+                  <div class="saved-meta">${dateStr} · ${count} exercises</div>
+                </div>
+                <div class="saved-actions">
+                  <button class="saved-btn load" data-id="${d.id}">Load</button>
+                  <button class="saved-btn delete" data-id="${d.id}">✕</button>
+                </div>
+              </div>
+              <div class="saved-meta">${goalsShort}</div>
+            </div>`;
+        });
+
+        savedListEl.innerHTML = html;
+
+        savedListEl.querySelectorAll(".saved-btn.load").forEach(btn => {
+          btn.addEventListener("click", () => loadCircuitFromId(btn.dataset.id));
+        });
+        savedListEl.querySelectorAll(".saved-btn.delete").forEach(btn => {
+          btn.addEventListener("click", () => deleteCircuit(btn.dataset.id));
+        });
+
+      } catch (e) {
+        console.error("Load circuits error:", e);
+        savedListEl.innerHTML = '<div class="empty-saves">Error loading circuits.</div>';
+      }
+    }
+
+    async function deleteCircuit(id) {
+      if (!currentUser) return;
+      try {
+        await deleteDoc(doc(db, "users", currentUser.uid, "circuits", id));
+        showToast("Circuit deleted");
+        loadSavedCircuits();
+      } catch (e) {
+        console.error("Delete error:", e);
+        showToast("Could not delete circuit.", "error");
+      }
+    }
+
+    function loadCircuitFromId(id) {
+      const data = savedSnap[id];
+      if (!data) return;
+
+      selectedSession = data.session;
+      selectedTime = data.time;
+      selectedGoals = data.goals || [];
+      lastCircuit = data.exercises || [];
+
+      // restore UI
+      document.querySelectorAll("[data-session]").forEach(el =>
+        el.classList.toggle("selected", el.dataset.session === selectedSession)
+      );
+      document.querySelectorAll("[data-time]").forEach(el =>
+        el.classList.toggle("selected", parseInt(el.dataset.time) === selectedTime)
+      );
+      document.querySelectorAll("[data-goal]").forEach(el =>
+        el.classList.toggle("selected", selectedGoals.includes(el.dataset.goal))
+      );
+
+      updateStepIndicator();
+      updateBuildButton();
+      renderResults(lastCircuit);
+      closeAccountPanel();
+      showToast("Circuit loaded 🌿");
+    }
+
+    /* ---------- 8. Circuits data ---------- */
+    const circuits = {
+      morning: {
+        flexibility: {
+          5:  ["Cat‑Cow Stretch","Standing Side Reach","Seated Forward Fold"],
+          10: ["Cat‑Cow Stretch","Standing Side Reach","Seated Forward Fold","Supine Spinal Twist","Hip Flexor Stretch"],
+          15: ["Cat‑Cow Stretch","Standing Side Reach","Seated Forward Fold","Supine Spinal Twist","Hip Flexor Stretch","Pigeon Pose Prep"],
+          20: ["Cat‑Cow Stretch","Standing Side Reach","Seated Forward Fold","Supine Spinal Twist","Hip Flexor Stretch","Pigeon Pose Prep","Legs Up the Wall"]
+        },
+        posture: {
+          5:  ["Chin Tucks","Shoulder Blade Squeeze","Cat‑Cow Stretch"],
+          10: ["Chin Tucks","Shoulder Blade Squeeze","Cat‑Cow Stretch","Doorway Chest Opener","Wall Angels"],
+          15: ["Chin Tucks","Shoulder Blade Squeeze","Cat‑Cow Stretch","Doorway Chest Opener","Wall Angels","Thoracic Extension"],
+          20: ["Chin Tucks","Shoulder Blade Squeeze","Cat‑Cow Stretch","Doorway Chest Opener","Wall Angels","Thoracic Extension","Hip Flexor Stretch"]
+        },
+        stress: {
+          5:  ["Deep Breathing","Seated Forward Fold","Supine Spinal Twist"],
+          10: ["Deep Breathing","Seated Forward Fold","Supine Spinal Twist","Child's Pose","Neck Half Circles"],
+          15: ["Deep Breathing","Seated Forward Fold","Supine Spinal Twist","Child's Pose","Neck Half Circles","Pigeon Pose Prep"],
+          20: ["Deep Breathing","Seated Forward Fold","Supine Spinal Twist","Child's Pose","Neck Half Circles","Pigeon Pose Prep","Legs Up the Wall"]
+        },
+        energy: {
+          5:  ["Sun Salutation Flow","Standing Side Reach","Hip Circles"],
+          10: ["Sun Salutation Flow","Standing Side Reach","Hip Circles","Arm Circles","High Knees in Place"],
+          15: ["Sun Salutation Flow","Standing Side Reach","Hip Circles","Arm Circles","High Knees in Place","Dynamic Leg Swings"],
+          20: ["Sun Salutation Flow","Standing Side Reach","Hip Circles","Arm Circles","High Knees in Place","Dynamic Leg Swings","Squat to Stand"]
+        },
+        strength: {
+          5:  ["Glute Bridges","Bird Dog","Dead Bug Hold"],
+          10: ["Glute Bridges","Bird Dog","Dead Bug Hold","Clamshells","Hip Circles"],
+          15: ["Glute Bridges","Bird Dog","Dead Bug Hold","Clamshells","Hip Circles","Side‑Lying Hip Abduction"],
+          20: ["Glute Bridges","Bird Dog","Dead Bug Hold","Clamshells","Hip Circles","Side‑Lying Hip Abduction","Bear Crawl Hold"]
+        },
+        recovery: {
+          5:  ["Cat‑Cow Stretch","Supine Spinal Twist","Glute Bridges"],
+          10: ["Cat‑Cow Stretch","Supine Spinal Twist","Glute Bridges","Child's Pose","Calf Raises to Stretch"],
+          15: ["Cat‑Cow Stretch","Supine Spinal Twist","Glute Bridges","Child's Pose","Calf Raises to Stretch","Pigeon Pose Prep"],
+          20: ["Cat‑Cow Stretch","Supine Spinal Twist","Glute Bridges","Child's Pose","Calf Raises to Stretch","Pigeon Pose Prep","Legs Up the Wall"]
+        }
+      },
+      night: {
+        flexibility: {
+          5:  ["Supine Spinal Twist","Seated Forward Fold","Child's Pose"],
+          10: ["Supine Spinal Twist","Seated Forward Fold","Child's Pose","Hip Flexor Stretch","Pigeon Pose Prep"],
+          15: ["Supine Spinal Twist","Seated Forward Fold","Child's Pose","Hip Flexor Stretch","Pigeon Pose Prep","Legs Up the Wall"],
+          20: ["Supine Spinal Twist","Seated Forward Fold","Child's Pose","Hip Flexor Stretch","Pigeon Pose Prep","Legs Up the Wall","Doorway Chest Opener"]
+        },
+        posture: {
+          5:  ["Chin Tucks","Doorway Chest Opener","Wall Angels"],
+          10: ["Chin Tucks","Doorway Chest Opener","Wall Angels","Thoracic Extension","Supine Spinal Twist"],
+          15: ["Chin Tucks","Doorway Chest Opener","Wall Angels","Thoracic Extension","Supine Spinal Twist","Hip Flexor Stretch"],
+          20: ["Chin Tucks","Doorway Chest Opener","Wall Angels","Thoracic Extension","Supine Spinal Twist","Hip Flexor Stretch","Cat‑Cow Stretch"]
+        },
+        stress: {
+          5:  ["Deep Breathing","Child's Pose","Legs Up the Wall"],
+          10: ["Deep Breathing","Child's Pose","Legs Up the Wall","Supine Spinal Twist","Neck Half Circles"],
+          15: ["Deep Breathing","Child's Pose","Legs Up the Wall","Supine Spinal Twist","Neck Half Circles","Seated Forward Fold"],
+          20: ["Deep Breathing","Child's Pose","Legs Up the Wall","Supine Spinal Twist","Neck Half Circles","Seated Forward Fold","Pigeon Pose Prep"]
+        },
+        energy: {
+          5:  ["Hip Circles","Arm Circles","Standing Side Reach"],
+          10: ["Hip Circles","Arm Circles","Standing Side Reach","Cat‑Cow Stretch","Dynamic Leg Swings"],
+          15: ["Hip Circles","Arm Circles","Standing Side Reach","Cat‑Cow Stretch","Dynamic Leg Swings","Squat to Stand"],
+          20: ["Hip Circles","Arm Circles","Standing Side Reach","Cat‑Cow Stretch","Dynamic Leg Swings","Squat to Stand","Supine Spinal Twist"]
+        },
+        strength: {
+          5:  ["Glute Bridges","Clamshells","Dead Bug Hold"],
+          10: ["Glute Bridges","Clamshells","Dead Bug Hold","Bird Dog","Side‑Lying Hip Abduction"],
+          15: ["Glute Bridges","Clamshells","Dead Bug Hold","Bird Dog","Side‑Lying Hip Abduction","Hip Circles"],
+          20: ["Glute Bridges","Clamshells","Dead Bug Hold","Bird Dog","Side‑Lying Hip Abduction","Hip Circles","Child's Pose"]
+        },
+        recovery: {
+          5:  ["Legs Up the Wall","Child's Pose","Supine Spinal Twist"],
+          10: ["Legs Up the Wall","Child's Pose","Supine Spinal Twist","Pigeon Pose Prep","Glute Bridges"],
+          15: ["Legs Up the Wall","Child's Pose","Supine Spinal Twist","Pigeon Pose Prep","Glute Bridges","Calf Raises to Stretch"],
+          20: ["Legs Up the Wall","Child's Pose","Supine Spinal Twist","Pigeon Pose Prep","Glute Bridges","Calf Raises to Stretch","Seated Forward Fold"]
+        }
+      }
+    };
+
+    /* ---------- 9. Exercise details ---------- */
+    const exerciseDetails = {
+      "Cat‑Cow Stretch": {
+        icon: "🐱",
+        duration: "60 sec",
+        targets: "Spine · Core",
+        steps: [
+          "Start on all fours with wrists under shoulders and knees under hips.",
+          "Inhale: drop your belly, lift chest and tailbone (Cow).",
+          "Exhale: round your spine, tuck chin and tailbone (Cat).",
+          "Move smoothly with your breath for 8–10 slow cycles."
+        ],
+        tip: "<strong>Tip:</strong> Focus on slow control, not speed. Let your breath lead each movement."
+      },
+      "Standing Side Reach": {
+        icon: "🙆",
+        duration: "45 sec each side",
+        targets: "Side body · Lats · Hips",
+        steps: [
+          "Stand tall with feet hip‑width apart.",
+          "Reach your right arm overhead and gently lean to the left.",
+          "Keep chest facing forward; think of reaching up and over.",
+          "Hold 20–30 seconds, breathing into the stretch, then switch sides."
+        ],
+        tip: "<strong>Tip:</strong> Keep your hips stacked over your feet instead of shifting them sideways."
+      },
+      "Seated Forward Fold": {
+        icon: "🧘",
+        duration: "60 sec",
+        targets: "Hamstrings · Lower back",
+        steps: [
+          "Sit with legs extended in front and toes pointing up.",
+          "Inhale to sit tall and lengthen your spine.",
+          "Exhale and hinge from the hips, reaching toward your feet.",
+          "Stop at a comfortable stretch and hold 30–60 seconds."
+        ],
+        tip: "<strong>Tip:</strong> A soft bend in the knees is fine if your hamstrings are tight."
+      },
+      "Supine Spinal Twist": {
+        icon: "🌀",
+        duration: "45–60 sec each side",
+        targets: "Spine · Glutes",
+        steps: [
+          "Lie on your back with legs extended.",
+          "Hug your right knee toward your chest.",
+          "Guide the knee across your body to the left while your right arm opens out to the side.",
+          "Turn your head to the right and breathe slowly for 45–60 seconds, then switch sides."
+        ],
+        tip: "<strong>Tip:</strong> Let the knee rest wherever it reaches comfortably – no need to force it to the floor."
+      },
+      "Hip Flexor Stretch": {
+        icon: "🦵",
+        duration: "45–60 sec each side",
+        targets: "Hip flexors · Quads",
+        steps: [
+          "Kneel on your right knee with your left foot in front (lunge position).",
+          "Shift your hips gently forward until you feel a stretch in the front of your right hip.",
+          "Keep your torso upright and squeeze your right glute lightly.",
+          "Hold for 45–60 seconds, then switch legs."
+        ],
+        tip: "<strong>Tip:</strong> Keeping the back‑leg glute active protects your lower back and deepens the stretch."
+      },
+      "Deep Breathing": {
+        icon: "🌬️",
+        duration: "2 min",
+        targets: "Breathing · Nervous system",
+        steps: [
+          "Sit or lie comfortably with one hand on your chest and one on your belly.",
+          "Inhale through your nose for 4 counts, letting your belly rise.",
+          "Pause briefly, then exhale through your mouth for 6–8 counts.",
+          "Repeat 8–10 slow breath cycles."
+        ],
+        tip: "<strong>Tip:</strong> This down‑regulates stress. Perfect at the start or end of a night routine."
+      },
+      "Child's Pose": {
+        icon: "🧎",
+        duration: "60–90 sec",
+        targets: "Hips · Lower back · Shoulders",
+        steps: [
+          "Kneel with big toes touching and knees comfortably apart.",
+          "Sit back toward your heels and slide your hands forward.",
+          "Lower your chest and forehead toward the floor.",
+          "Relax your shoulders and breathe slowly into your back."
+        ],
+        tip: "<strong>Tip:</strong> If hips feel tight, place a cushion between your calves and thighs."
+      },
+      "Legs Up the Wall": {
+        icon: "🦵",
+        duration: "2–3 min",
+        targets: "Legs · Lower back · Relaxation",
+        steps: [
+          "Sit sideways next to a wall and roll onto your back as you swing your legs up.",
+          "Shuffle your hips toward the wall so your legs rest comfortably upright.",
+          "Let your arms rest by your sides, palms up.",
+          "Close your eyes and breathe naturally for 2–3 minutes."
+        ],
+        tip: "<strong>Tip:</strong> Great for calming the body and easing heavy legs at night."
+      },
+      "Sun Salutation Flow": {
+        icon: "☀️",
+        duration: "2–3 min",
+        targets: "Full body · Warm‑up",
+        steps: [
+          "Stand tall at the top of your mat, hands at your chest.",
+          "Inhale: sweep arms overhead. Exhale: fold forward.",
+          "Step back to plank, lower to the floor and press into a gentle backbend.",
+          "Lift hips into Downward Dog for 3 slow breaths, then walk forward and stand.",
+        ],
+        tip: "<strong>Tip:</strong> Move at half the speed you think you should and match each move to a breath."
+      },
+      "Hip Circles": {
+        icon: "⭕",
+        duration: "45 sec",
+        targets: "Hips · Lower back",
+        steps: [
+          "Stand with feet slightly wider than hip‑width, hands on hips.",
+          "Slowly circle your hips clockwise in a big, smooth motion.",
+          "After 20–30 seconds, reverse the direction.",
+          "Stay tall through your spine as the hips move."
+        ],
+        tip: "<strong>Tip:</strong> Imagine drawing a big circle with your hips; avoid rushing."
+      },
+      "Arm Circles": {
+        icon: "🔄",
+        duration: "45 sec",
+        targets: "Shoulders",
+        steps: [
+          "Stand tall with arms straight out to the sides.",
+          "Make small forward circles for 10–15 seconds.",
+          "Gradually grow the circles, then reverse the direction.",
+          "Keep the motion smooth and controlled."
+        ],
+        tip: "<strong>Tip:</strong> Keep your neck relaxed and shoulders away from your ears."
+      },
+      "High Knees in Place": {
+        icon: "🏃",
+        duration: "30–45 sec",
+        targets: "Hip flexors · Heart rate",
+        steps: [
+          "Stand tall with feet hip‑width apart.",
+          "Jog on the spot while lifting your knees toward hip height.",
+          "Pump your arms naturally as you move.",
+          "Maintain an upright posture and a light landing."
+        ],
+        tip: "<strong>Tip:</strong> For lower impact, march briskly instead of jogging."
+      },
+      "Glute Bridges": {
+        icon: "🍑",
+        duration: "45–60 sec",
+        targets: "Glutes · Hamstrings",
+        steps: [
+          "Lie on your back with knees bent and feet flat hip‑width apart.",
+          "Brace your core and drive through your heels to lift hips.",
+          "Squeeze your glutes at the top; avoid arching your lower back.",
+          "Lower under control and repeat 10–15 times."
+        ],
+        tip: "<strong>Tip:</strong> Think about pushing the floor away rather than lifting your chest."
+      },
+      "Bird Dog": {
+        icon: "🐦",
+        duration: "60 sec",
+        targets: "Core · Back",
+        steps: [
+          "Start on hands and knees with a neutral spine.",
+          "Extend your right arm forward and left leg back.",
+          "Hold 2–3 seconds, keeping hips level and core engaged.",
+          "Return and switch sides for 8–10 reps each."
+        ],
+        tip: "<strong>Tip:</strong> Imagine balancing a glass of water on your lower back."
+      },
+      "Dead Bug Hold": {
+        icon: "🐞",
+        duration: "60 sec",
+        targets: "Deep core",
+        steps: [
+          "Lie on your back with arms up and knees bent 90° above hips.",
+          "Press your lower back gently into the floor.",
+          "Slowly lower opposite arm and leg toward the floor.",
+          "Return and switch sides for 6–8 reps each."
+        ],
+        tip: "<strong>Tip:</strong> If your back lifts off the floor, shorten the range of motion."
+      },
+      "Pigeon Pose Prep": {
+        icon: "🕊️",
+        duration: "60–90 sec each side",
+        targets: "Glutes · Outer hip",
+        steps: [
+          "Lie on your back, knees bent and feet flat.",
+          "Cross your right ankle over your left knee.",
+          "Thread your hands behind the left thigh and gently pull toward your chest.",
+          "Hold while breathing deeply, then switch sides."
+        ],
+        tip: "<strong>Tip:</strong> Keep the crossed ankle flexed to protect your knee."
+      },
+      "Chin Tucks": {
+        icon: "📱",
+        duration: "45 sec",
+        targets: "Neck · Posture",
+        steps: [
+          "Sit or stand tall, looking straight ahead.",
+          "Gently draw your head straight back (like a double chin).",
+          "Hold 3 seconds, then relax.",
+          "Repeat 8–10 times with slow control."
+        ],
+        tip: "<strong>Tip:</strong> Imagine sliding your head back on a shelf rather than tipping it up or down."
+      },
+      "Shoulder Blade Squeeze": {
+        icon: "🧱",
+        duration: "45 sec",
+        targets: "Upper back",
+        steps: [
+          "Sit or stand tall with arms relaxed.",
+          "Gently pull your shoulder blades together and slightly down.",
+          "Hold 3–5 seconds, then relax.",
+          "Repeat 10–12 times."
+        ],
+        tip: "<strong>Tip:</strong> Avoid shrugging your shoulders up toward your ears."
+      },
+      "Doorway Chest Opener": {
+        icon: "🚪",
+        duration: "30–45 sec each side",
+        targets: "Chest · Shoulders",
+        steps: [
+          "Stand in a doorway and place your right forearm on the frame at shoulder height.",
+          "Step your right foot slightly forward.",
+          "Turn your chest gently away from the arm until you feel a stretch.",
+          "Hold 30–45 seconds, then switch sides."
+        ],
+        tip: "<strong>Tip:</strong> Keep your ribs down instead of flaring the chest forward."
+      },
+      "Wall Angels": {
+        icon: "👼",
+        duration: "60 sec",
+        targets: "Shoulders · Upper back",
+        steps: [
+          "Stand with your back against a wall, feet a few inches forward.",
+          "Press your lower back, upper back and head gently to the wall.",
+          "Raise arms to a goalpost position against the wall.",
+          "Slide arms up and down slowly 8–10 times."
+        ],
+        tip: "<strong>Tip:</strong> Only move as far as you can while keeping contact with the wall."
+      },
+      "Thoracic Extension": {
+        icon: "🪵",
+        duration: "60 sec",
+        targets: "Upper back",
+        steps: [
+          "Place a foam roller (or rolled towel) across your upper back.",
+          "Support your head with your hands.",
+          "Gently lean back over the roller, pausing where you feel tight.",
+          "Take 3–4 slow breaths, then shift the roller slightly and repeat."
+        ],
+        tip: "<strong>Tip:</strong> Keep your ribs down and avoid over‑arching the lower back."
+      },
+      "Neck Half Circles": {
+        icon: "🔄",
+        duration: "45–60 sec",
+        targets: "Neck",
+        steps: [
+          "Sit or stand tall.",
+          "Drop your right ear toward your right shoulder.",
+          "Slowly roll your chin through the centre and across to the other shoulder.",
+          "Move in slow half‑circles 3–4 times each way."
+        ],
+        tip: "<strong>Tip:</strong> Avoid rolling the head all the way back; stay in front of the body."
+      },
+      "Calf Raises to Stretch": {
+        icon: "🦶",
+        duration: "45–60 sec",
+        targets: "Calves · Ankles",
+        steps: [
+          "Stand tall near a wall for balance.",
+          "Rise onto the balls of your feet and pause briefly.",
+          "Lower slowly until your heels are back on the ground.",
+          "Repeat 12–15 reps with control."
+        ],
+        tip: "<strong>Tip:</strong> Emphasise the slow lowering phase for better flexibility."
+      },
+      "Clamshells": {
+        icon: "🦪",
+        duration: "45 sec each side",
+        targets: "Glutes · Hips",
+        steps: [
+          "Lie on one side with hips stacked and knees bent.",
+          "Keep feet together and open your top knee like a clamshell.",
+          "Pause at the top, then lower with control.",
+          "Repeat 12–15 times each side."
+        ],
+        tip: "<strong>Tip:</strong> Keep your hips stacked; avoid rolling backward."
+      },
+      "Side‑Lying Hip Abduction": {
+        icon: "🦵",
+        duration: "45 sec each side",
+        targets: "Outer hip",
+        steps: [
+          "Lie on your side with legs straight in line with your body.",
+          "Lift the top leg up toward the ceiling 30–45 degrees.",
+          "Pause, then lower with control without resting fully.",
+          "Repeat 10–15 times each side."
+        ],
+        tip: "<strong>Tip:</strong> Point your toes slightly down to hit the side glutes more than the hip flexor."
+      },
+      "Bear Crawl Hold": {
+        icon: "🐻",
+        duration: "30–45 sec",
+        targets: "Core · Shoulders",
+        steps: [
+          "Start on hands and knees.",
+          "Tuck your toes and lift knees 2–3 cm off the floor.",
+          "Keep back flat and core braced as you breathe slowly.",
+          "Hold 20–40 seconds, resting as needed."
+        ],
+        tip: "<strong>Tip:</strong> If hips start to rise, reset and keep shoulders over wrists."
+      }
+    };
+
+    function getExerciseDetails(name) {
+      if (exerciseDetails[name]) return exerciseDetails[name];
+      // fallback generic
+      return {
+        icon: "🤸",
+        duration: "45 sec",
+        targets: "Full body",
+        steps: [
+          "Set up in a comfortable, stable position.",
+          "Move slowly through the range of motion described.",
+          "Breathe steadily and avoid any sharp pain.",
+          "Use a smaller range if anything feels tight."
+        ],
+        tip: "<strong>Tip:</strong> Focus on smooth, controlled motion rather than forcing a big stretch."
+      };
+    }
+
+    /* ---------- 10. Builder UI logic ---------- */
+    const sessionCards = document.querySelectorAll("[data-session]");
+    const timePills    = document.querySelectorAll("[data-time]");
+    const goalPills    = document.querySelectorAll("[data-goal]");
+    const btnBuild     = document.getElementById("btn-build");
+    const btnReset     = document.getElementById("btn-reset");
+    const btnNew       = document.getElementById("btn-new");
+    const btnSave      = document.getElementById("btn-save");
+
+    sessionCards.forEach(card => {
+      card.addEventListener("click", () => {
+        sessionCards.forEach(c => c.classList.remove("selected"));
+        card.classList.add("selected");
+        selectedSession = card.dataset.session;
+        updateStepIndicator();
+        updateBuildButton();
       });
     });
-    const maxCounts = { 5:4, 10:6, 15:8, 20:10 };
-    all = all.slice(0, maxCounts[selectedTime] || 6);
-    lastCircuit = all;
-    renderResults(all);
-  }
 
-  function renderResults(list) {
-    lastCircuit = list;
-    const goalLabels = { flexibility:'Flexibility', posture:'Better Posture', stress:'Stress Relief', strength:'Joint Strength', energy:'Energy Boost', recovery:'Recovery' };
-    const goalsText    = selectedGoals.map(g => goalLabels[g]).join(' · ');
-    const sessionLabel = selectedSession === 'morning' ? '🌅 Morning' : '🌙 Night';
-
-    document.getElementById('results-tag').textContent   = `${sessionLabel} · ${selectedTime} min · ${goalsText}`;
-    document.getElementById('results-title').textContent = selectedSession === 'morning' ? 'Your Morning Wake-Up Circuit' : 'Your Night Wind-Down Circuit';
-    document.getElementById('results-sub').textContent   = `${list.length} exercises · Click any card to read the full how-to instructions.`;
-
-    document.getElementById('results-summary').innerHTML = `
-      <div class="summary-item"><div class="summary-label">Session</div><div class="summary-value">${selectedSession === 'morning' ? 'Morning Wake-Up' : 'Night Wind-Down'}</div></div>
-      <div class="summary-divider"></div>
-      <div class="summary-item"><div class="summary-label">Duration</div><div class="summary-value">${selectedTime} minutes</div></div>
-      <div class="summary-divider"></div>
-      <div class="summary-item"><div class="summary-label">Exercises</div><div class="summary-value">${list.length} movements</div></div>
-      <div class="summary-divider"></div>
-      <div class="summary-item"><div class="summary-label">Goals</div><div class="summary-value">${goalsText}</div></div>`;
-
-    const listEl = document.getElementById('exercise-list');
-    listEl.innerHTML = '';
-    list.forEach((name, i) => {
-      const d = exerciseDetails[name] || { duration:'45 sec', targets:'Full Body', icon:'🤸', steps:['Perform with good form and controlled breathing.'], tip:'<strong>Tip:</strong> Focus on quality over speed.' };
-      const card = document.createElement('div');
-      card.className = 'exercise-card';
-      card.innerHTML = `
-        <div class="exercise-header">
-          <div class="exercise-num">${i + 1}</div>
-          <div class="exercise-meta">
-            <div class="exercise-name">${d.icon} ${name}</div>
-            <div class="exercise-tags">
-              <span class="exercise-tag">⏱ ${d.duration}</span>
-              <span class="exercise-tag">🎯 ${d.targets}</span>
-            </div>
-          </div>
-          <div class="exercise-arrow">▾</div>
-        </div>
-        <div class="exercise-body">
-          <div class="exercise-body-inner">
-            <div class="body-section-label">How To Do It</div>
-            <div class="instructions">
-              ${d.steps.map((s, idx) => `
-                <div class="instruction-step">
-                  <div class="i-num">${idx + 1}</div>
-                  <div>${s}</div>
-                </div>`).join('')}
-            </div>
-            <div class="tips-box"><p>${d.tip}</p></div>
-          </div>
-        </div>`;
-      /* Attach toggle listener directly — no inline onclick needed */
-      card.querySelector('.exercise-header').addEventListener('click', () => toggleExercise(card));
-      listEl.appendChild(card);
+    timePills.forEach(pill => {
+      pill.addEventListener("click", () => {
+        timePills.forEach(p => p.classList.remove("selected"));
+        pill.classList.add("selected");
+        selectedTime = parseInt(pill.dataset.time);
+        updateStepIndicator();
+        updateBuildButton();
+      });
     });
 
-    saveBtn.textContent = '💾 Save Circuit';
-    saveBtn.disabled    = false;
+    goalPills.forEach(pill => {
+      pill.addEventListener("click", () => {
+        const goal = pill.dataset.goal;
+        if (pill.classList.contains("selected")) {
+          pill.classList.remove("selected");
+          selectedGoals = selectedGoals.filter(g => g !== goal);
+        } else {
+          pill.classList.add("selected");
+          selectedGoals.push(goal);
+        }
+        updateStepIndicator();
+        updateBuildButton();
+      });
+    });
 
-    const resultsEl = document.getElementById('results');
-    resultsEl.style.display = 'block';
-    setTimeout(() => resultsEl.scrollIntoView({ behavior:'smooth', block:'start' }), 100);
-  }
+    btnBuild.addEventListener("click", buildCircuit);
+    btnReset.addEventListener("click", resetBuilder);
+    btnNew.addEventListener("click", resetBuilder);
+    btnSave.addEventListener("click", saveCircuit);
 
-  function toggleExercise(card) {
-    const isOpen = card.classList.contains('open');
-    document.querySelectorAll('.exercise-card.open').forEach(c => c.classList.remove('open'));
-    if (!isOpen) card.classList.add('open');
-  }
+    function updateStepIndicator() {
+      const stepEls = [1,2,3,4].map(n => document.getElementById("si-" + n));
+      stepEls.forEach(el => el.classList.remove("active","done"));
 
-  function resetAll() {
-    selectedSession = null; selectedTime = null; selectedGoals = []; lastCircuit = [];
-    document.querySelectorAll('.sel-card, .time-pill, .goal-tag').forEach(el => el.classList.remove('selected'));
-    document.getElementById('results').style.display = 'none';
+      if (!selectedSession) {
+        stepEls[0].classList.add("active");
+        return;
+      }
+      stepEls[0].classList.add("done");
+
+      if (!selectedTime) {
+        stepEls[1].classList.add("active");
+        return;
+      }
+      stepEls[1].classList.add("done");
+
+      if (!selectedGoals.length) {
+        stepEls[2].classList.add("active");
+        return;
+      }
+      stepEls[2].classList.add("done");
+      stepEls[3].classList.add("active");
+    }
+
+    function updateBuildButton() {
+      btnBuild.disabled = !(selectedSession && selectedTime && selectedGoals.length);
+    }
+
+    function resetBuilder() {
+      selectedSession = null;
+      selectedTime = null;
+      selectedGoals = [];
+      lastCircuit = [];
+      sessionCards.forEach(c => c.classList.remove("selected"));
+      timePills.forEach(p => p.classList.remove("selected"));
+      goalPills.forEach(p => p.classList.remove("selected"));
+      document.getElementById("results").style.display = "none";
+      updateStepIndicator();
+      updateBuildButton();
+      document.getElementById("builder").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function buildCircuit() {
+      const sessionData = circuits[selectedSession];
+      let combined = [];
+
+      selectedGoals.forEach(goal => {
+        const goalData = sessionData[goal];
+        if (goalData && goalData[selectedTime]) {
+          goalData[selectedTime].forEach(name => {
+            if (!combined.includes(name)) combined.push(name);
+          });
+        }
+      });
+
+      const maxByTime = { 5:4, 10:6, 15:8, 20:10 };
+      const limit = maxByTime[selectedTime] || 6;
+      combined = combined.slice(0, limit);
+
+      lastCircuit = combined;
+      renderResults(combined);
+    }
+
+    function renderResults(list) {
+      const resultsSection = document.getElementById("results");
+      const tagEl   = document.getElementById("results-tag");
+      const titleEl = document.getElementById("results-title");
+      const subEl   = document.getElementById("results-sub");
+      const summaryEl = document.getElementById("results-summary");
+      const listEl  = document.getElementById("exercise-list");
+
+      const goalLabels = {
+        flexibility: "Flexibility",
+        posture: "Posture",
+        stress: "Stress relief",
+        strength: "Joint strength",
+        energy: "Energy",
+        recovery: "Recovery"
+      };
+
+      const sessionLabel = selectedSession === "morning" ? "🌅 Morning" : "🌙 Night";
+      const goalsText = selectedGoals.map(g => goalLabels[g] || g).join(" · ");
+
+      tagEl.textContent = `${sessionLabel} · ${selectedTime} min · ${goalsText}`;
+      titleEl.textContent = selectedSession === "morning"
+        ? "Your morning wake‑up circuit"
+        : "Your night wind‑down circuit";
+      subEl.textContent = `${list.length} exercises · tap any card to see the how‑to steps.`;
+
+      summaryEl.innerHTML = `
+        <div class="summary-item">
+          <div class="summary-label">Session</div>
+          <div class="summary-value">${sessionLabel}</div>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-item">
+          <div class="summary-label">Duration</div>
+          <div class="summary-value">${selectedTime} minutes</div>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-item">
+          <div class="summary-label">Exercises</div>
+          <div class="summary-value">${list.length}</div>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-item">
+          <div class="summary-label">Goals</div>
+          <div class="summary-value">${goalsText}</div>
+        </div>
+      `;
+
+      listEl.innerHTML = "";
+      list.forEach((name, index) => {
+        const info = getExerciseDetails(name);
+        const card = document.createElement("div");
+        card.className = "exercise-card";
+        card.innerHTML = `
+          <div class="exercise-header">
+            <div class="exercise-num">${index + 1}</div>
+            <div class="exercise-meta">
+              <div class="exercise-name">${info.icon} ${name}</div>
+              <div class="exercise-tags">
+                <span class="exercise-tag">⏱ ${info.duration}</span>
+                <span class="exercise-tag">🎯 ${info.targets}</span>
+              </div>
+            </div>
+            <div class="exercise-arrow">▾</div>
+          </div>
+          <div class="exercise-body">
+            <div class="exercise-body-inner">
+              <div class="body-label">How to do it</div>
+              <div class="steps-list">
+                ${info.steps.map((s,i) => `
+                  <div class="step-line-item">
+                    <span class="num">${i+1}</span>
+                    <div>${s}</div>
+                  </div>
+                `).join("")}
+              </div>
+              <div class="tip-box">${info.tip}</div>
+            </div>
+          </div>
+        `;
+        card.querySelector(".exercise-header").addEventListener("click", () => {
+          const isOpen = card.classList.contains("open");
+          document.querySelectorAll(".exercise-card.open").forEach(c => c.classList.remove("open"));
+          if (!isOpen) card.classList.add("open");
+        });
+        listEl.appendChild(card);
+      });
+
+      btnSave.textContent = "💾 Save circuit";
+      btnSave.disabled = false;
+
+      resultsSection.style.display = "block";
+      setTimeout(() => resultsSection.scrollIntoView({ behavior: "smooth" }), 80);
+    }
+
+    /* ---------- 11. Initial UI ---------- */
     updateStepIndicator();
-    updateBuildButton();
-    document.getElementById('builder').scrollIntoView({ behavior:'smooth' });
-  }
-
-  /* ── 12. TOAST ────────────────────────────────────────────── */
-  let toastTimer;
-  function showToast(msg, type = 'success') {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = `toast ${type} show`;
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
-  }
-
-  /* ── 13. INIT ─────────────────────────────────────────────── */
-  renderNav();
-  updateStepIndicator();
-
-</script>
+    renderNav(null);
+  </script>
 </body>
 </html>
-
